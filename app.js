@@ -11,7 +11,13 @@ import authRoutes from './routes/auth.js'
 import { globalAuth } from './middleware/globalAuth.js'
 
 // Cargar variables de entorno
-dotenv.config()
+dotenv.config({ path: './.env' })
+
+// Verificar que las variables se cargaron
+console.log('🔧 Variables de entorno cargadas:')
+console.log('   MONGODB_URI:', process.env.MONGODB_URI ? '✅ Configurada' : '❌ No encontrada')
+console.log('   PORT:', process.env.PORT || '3001 (por defecto)')
+console.log('   NODE_ENV:', process.env.NODE_ENV || 'development (por defecto)')
 
 const app = express()
 
