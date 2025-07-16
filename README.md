@@ -1,3 +1,5 @@
+[![Node.js CI](https://github.com/Dark14411/api-superheroes/actions/workflows/nodejs.yml/badge.svg)](https://github.com/Dark14411/api-superheroes/actions)
+
 # 🦸‍♂️ API de Superhéroes y Mascotas
 
 Una API REST completa para gestionar superhéroes y sus mascotas fantásticas, con sistema de autenticación por API Keys, adopción única y documentación Swagger.
@@ -91,8 +93,8 @@ Una API REST completa para gestionar superhéroes y sus mascotas fantásticas, c
 
 1. **Clonar el repositorio**
 ```bash
-git clone https://github.com/Dark14411/superheroes.git
-cd superheroes
+git clone https://github.com/Dark14411/api-superheroes.git
+cd api-superheroes
 ```
 
 2. **Instalar dependencias**
@@ -116,7 +118,12 @@ NODE_ENV=development
 npm start
 ```
 
-5. **Acceder a la API**
+5. **Correr los tests**
+```bash
+npm test
+```
+
+6. **Acceder a la API**
 * API Base: http://localhost:3001
 * Swagger UI: http://localhost:3001/api-docs
 
@@ -287,7 +294,7 @@ Las contribuciones son bienvenidas. Por favor, abre un issue o un pull request.
 ## 📞 Contacto
 
 * **GitHub**: [@Dark14411](https://github.com/Dark14411)
-* **Repositorio**: https://github.com/Dark14411/superheroes
+* **Repositorio**: https://github.com/Dark14411/api-superheroes
 
 ---
 

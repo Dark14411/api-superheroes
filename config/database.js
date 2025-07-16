@@ -5,10 +5,7 @@ const connectDB = async () => {
         // Usar la URL de MongoDB Atlas o local
         const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mascotas_fantasticas';
         
-        const conn = await mongoose.connect(mongoURI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        const conn = await mongoose.connect(mongoURI);
 
         console.log(`✅ MongoDB conectado: ${conn.connection.host}`);
         
