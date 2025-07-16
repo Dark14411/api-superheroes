@@ -10,8 +10,10 @@ import itemController from './controllers/itemController.js'
 import authRoutes from './routes/auth.js'
 import { globalAuth } from './middleware/globalAuth.js'
 
-// Cargar variables de entorno
+// Cargar variables de entorno desde múltiples ubicaciones
 dotenv.config({ path: './.env' })
+dotenv.config({ path: '../.env' })
+dotenv.config({ path: '../../.env' })
 
 // Verificar que las variables se cargaron
 console.log('🔧 Variables de entorno cargadas:')
