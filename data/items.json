@@ -1,0 +1,302 @@
+[
+  {
+    "id": 1,
+    "nombre": "Comida Básica",
+    "tipo": "comida",
+    "efecto": "felicidad",
+    "valor": 15,
+    "precio": 0,
+    "esGratuito": true,
+    "descripcion": "Comida básica que aumenta la felicidad de tu mascota"
+  },
+  {
+    "id": 2,
+    "nombre": "Medicina Básica",
+    "tipo": "medicina",
+    "efecto": "salud",
+    "valor": 20,
+    "precio": 0,
+    "esGratuito": true,
+    "descripcion": "Medicina básica para curar heridas menores"
+  },
+  {
+    "id": 3,
+    "nombre": "Pelota Simple",
+    "tipo": "juguete",
+    "efecto": "felicidad",
+    "valor": 10,
+    "precio": 0,
+    "esGratuito": true,
+    "descripcion": "Juguete simple para entretener a tu mascota"
+  },
+  {
+    "id": 4,
+    "nombre": "Poción de Vida",
+    "tipo": "cura",
+    "efecto": "salud",
+    "valor": 50,
+    "precio": 100,
+    "esGratuito": false,
+    "descripcion": "Poción mágica que restaura mucha salud"
+  },
+  {
+    "id": 5,
+    "nombre": "Elixir de Felicidad",
+    "tipo": "cura",
+    "efecto": "felicidad",
+    "valor": 60,
+    "precio": 150,
+    "esGratuito": false,
+    "descripcion": "Elixir que hace muy feliz a tu mascota"
+  },
+  {
+    "id": 6,
+    "nombre": "Cristal de Restauración",
+    "tipo": "cura",
+    "efecto": "ambos",
+    "valor": 40,
+    "precio": 200,
+    "esGratuito": false,
+    "descripcion": "Cristal mágico que restaura salud y felicidad"
+  },
+  {
+    "id": 7,
+    "nombre": "Comida Premium",
+    "tipo": "comida",
+    "efecto": "ambos",
+    "valor": 25,
+    "precio": 50,
+    "esGratuito": false,
+    "descripcion": "Comida de alta calidad que mejora salud y felicidad"
+  },
+  {
+    "id": 8,
+    "nombre": "Juguete Mágico",
+    "tipo": "juguete",
+    "efecto": "felicidad",
+    "valor": 35,
+    "precio": 75,
+    "esGratuito": false,
+    "descripcion": "Juguete encantado que proporciona mucha diversión"
+  },
+  {
+    "id": 9,
+    "nombre": "Vendaje Curativo",
+    "tipo": "medicina",
+    "efecto": "salud",
+    "valor": 30,
+    "precio": 25,
+    "esGratuito": false,
+    "descripcion": "Vendaje especial para curar heridas graves"
+  },
+  {
+    "id": 10,
+    "nombre": "Agua Bendita",
+    "tipo": "cura",
+    "efecto": "ambos",
+    "valor": 100,
+    "precio": 500,
+    "esGratuito": false,
+    "descripcion": "Agua sagrada que restaura completamente a tu mascota"
+  },
+  {
+    "id": 11,
+    "nombre": "Comida de Dragón",
+    "tipo": "comida",
+    "efecto": "ambos",
+    "valor": 45,
+    "precio": 120,
+    "esGratuito": false,
+    "descripcion": "Comida especial para dragones que aumenta su poder y felicidad"
+  },
+  {
+    "id": 12,
+    "nombre": "Poción de Inmortalidad",
+    "tipo": "cura",
+    "efecto": "salud",
+    "valor": 200,
+    "precio": 1000,
+    "esGratuito": false,
+    "descripcion": "Poción legendaria que restaura completamente la salud y previene la muerte"
+  },
+  {
+    "id": 13,
+    "nombre": "Juguete de Luz",
+    "tipo": "juguete",
+    "efecto": "felicidad",
+    "valor": 50,
+    "precio": 80,
+    "esGratuito": false,
+    "descripcion": "Juguete que emite luz mágica y entretiene a las mascotas nocturnas"
+  },
+  {
+    "id": 14,
+    "nombre": "Antídoto Universal",
+    "tipo": "medicina",
+    "efecto": "salud",
+    "valor": 80,
+    "precio": 300,
+    "esGratuito": false,
+    "descripcion": "Cura cualquier enfermedad y envenenamiento"
+  },
+  {
+    "id": 15,
+    "nombre": "Comida de Fénix",
+    "tipo": "comida",
+    "efecto": "ambos",
+    "valor": 60,
+    "precio": 200,
+    "esGratuito": false,
+    "descripcion": "Comida sagrada que rejuvenece y energiza a las mascotas"
+  },
+  {
+    "id": 16,
+    "nombre": "Collar Mágico",
+    "tipo": "juguete",
+    "efecto": "felicidad",
+    "valor": 40,
+    "precio": 150,
+    "esGratuito": false,
+    "descripcion": "Collar encantado que hace feliz a tu mascota y la protege"
+  },
+  {
+    "id": 17,
+    "nombre": "Poción de Regeneración",
+    "tipo": "cura",
+    "efecto": "salud",
+    "valor": 75,
+    "precio": 250,
+    "esGratuito": false,
+    "descripcion": "Poción que regenera tejidos y cura heridas profundas"
+  },
+  {
+    "id": 18,
+    "nombre": "Comida de Unicornio",
+    "tipo": "comida",
+    "efecto": "felicidad",
+    "valor": 55,
+    "precio": 180,
+    "esGratuito": false,
+    "descripcion": "Comida mágica que purifica y alegra el espíritu de tu mascota"
+  },
+  {
+    "id": 19,
+    "nombre": "Juguete de Viento",
+    "tipo": "juguete",
+    "efecto": "felicidad",
+    "valor": 30,
+    "precio": 60,
+    "esGratuito": false,
+    "descripcion": "Juguete que flota en el aire y entretiene a las mascotas voladoras"
+  },
+  {
+    "id": 20,
+    "nombre": "Elixir de Juventud",
+    "tipo": "cura",
+    "efecto": "ambos",
+    "valor": 90,
+    "precio": 400,
+    "esGratuito": false,
+    "descripcion": "Elixir que rejuvenece y revitaliza completamente a tu mascota"
+  },
+  {
+    "id": 21,
+    "nombre": "Comida de Grifo",
+    "tipo": "comida",
+    "efecto": "ambos",
+    "valor": 35,
+    "precio": 90,
+    "esGratuito": false,
+    "descripcion": "Comida especial para grifos que mejora su agilidad y felicidad"
+  },
+  {
+    "id": 22,
+    "nombre": "Poción de Sueño",
+    "tipo": "medicina",
+    "efecto": "salud",
+    "valor": 25,
+    "precio": 40,
+    "esGratuito": false,
+    "descripcion": "Poción que induce un sueño reparador y cura el cansancio"
+  },
+  {
+    "id": 23,
+    "nombre": "Juguete de Agua",
+    "tipo": "juguete",
+    "efecto": "felicidad",
+    "valor": 45,
+    "precio": 100,
+    "esGratuito": false,
+    "descripcion": "Juguete acuático que entretiene a las mascotas que aman el agua"
+  },
+  {
+    "id": 24,
+    "nombre": "Comida de Sirena",
+    "tipo": "comida",
+    "efecto": "felicidad",
+    "valor": 40,
+    "precio": 110,
+    "esGratuito": false,
+    "descripcion": "Comida marina que encanta y alegra a las criaturas acuáticas"
+  },
+  {
+    "id": 25,
+    "nombre": "Poción de Fuerza",
+    "tipo": "cura",
+    "efecto": "salud",
+    "valor": 65,
+    "precio": 220,
+    "esGratuito": false,
+    "descripcion": "Poción que fortalece los músculos y aumenta la resistencia"
+  },
+  {
+    "id": 26,
+    "nombre": "Juguete de Fuego",
+    "tipo": "juguete",
+    "efecto": "felicidad",
+    "valor": 55,
+    "precio": 130,
+    "esGratuito": false,
+    "descripcion": "Juguete que emite llamas controladas para mascotas resistentes al fuego"
+  },
+  {
+    "id": 27,
+    "nombre": "Comida de Minotauro",
+    "tipo": "comida",
+    "efecto": "ambos",
+    "valor": 50,
+    "precio": 140,
+    "esGratuito": false,
+    "descripcion": "Comida robusta que fortalece y satisface a las mascotas fuertes"
+  },
+  {
+    "id": 28,
+    "nombre": "Poción de Invisibilidad",
+    "tipo": "medicina",
+    "efecto": "salud",
+    "valor": 30,
+    "precio": 80,
+    "esGratuito": false,
+    "descripcion": "Poción que hace invisible temporalmente a tu mascota para escapar del peligro"
+  },
+  {
+    "id": 29,
+    "nombre": "Juguete de Cristal",
+    "tipo": "juguete",
+    "efecto": "felicidad",
+    "valor": 70,
+    "precio": 180,
+    "esGratuito": false,
+    "descripcion": "Juguete de cristal mágico que brilla y cambia de color"
+  },
+  {
+    "id": 30,
+    "nombre": "Comida de Hidra",
+    "tipo": "comida",
+    "efecto": "ambos",
+    "valor": 70,
+    "precio": 250,
+    "esGratuito": false,
+    "descripcion": "Comida especial para hidras que potencia sus múltiples cabezas"
+  }
+] 
