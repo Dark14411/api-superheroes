@@ -15,8 +15,6 @@ const connectDB = async () => {
         const options = {
             serverSelectionTimeoutMS: 10000, // 10 segundos
             socketTimeoutMS: 45000, // 45 segundos
-            bufferCommands: false, // Deshabilitar buffering
-            bufferMaxEntries: 0, // Sin límite de buffer
         };
         
         const conn = await mongoose.connect(mongoURI, options);
