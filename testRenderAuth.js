@@ -2,14 +2,14 @@ import mongoose from 'mongoose';
 
 // Test different URI formats for Render
 const testURIs = [
-    // Original URI with new password
-    'mongodb+srv://carlitoseuan2002:Coopersac@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0',
-    
-    // URI with encoded password
-    'mongodb+srv://carlitoseuan2002:Coopersac@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0',
+    // User carlitoseuan2002 with simple password
+    'mongodb+srv://carlitoseuan2002:Cooper2024@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0',
     
     // URI without database name
-    'mongodb+srv://carlitoseuan2002:Coopersac@cluster0.mlzaawc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+    'mongodb+srv://carlitoseuan2002:Cooper2024@cluster0.mlzaawc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
+    
+    // Alternative simple password
+    'mongodb+srv://carlitoseuan2002:Cooper2024!@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0'
 ];
 
 const testConnection = async (uri, testName) => {
