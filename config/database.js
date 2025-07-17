@@ -11,7 +11,15 @@ const connectDB = async () => {
             console.log('💡 Para producción, configura MONGODB_URI con tu string de MongoDB Atlas');
         }
         
-        const conn = await mongoose.connect(mongoURI);
+        // Configurar opciones de conexión optimizadas para Render
+        const options = {
+            serverSelectionTimeoutMS: 10000, // 10 segundos
+            socketTimeoutMS: 45000, // 45 segundos
+            bufferCommands: false, // Deshabilitar buffering
+            bufferMaxEntries: 0, // Sin límite de buffer
+        };
+        
+        const conn = await mongoose.connect(mongoURI, options);
 
         console.log(`✅ MongoDB conectado: ${conn.connection.host}`);
         
