@@ -9,7 +9,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: MONGODB_URI
-        value: mongodb+srv://carlitoseuan2002:Cooper2024@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0
+        value: mongodb+srv://Dark144:Cooper144467@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0
       - key: JWT_SECRET
         value: tu_jwt_secret_super_seguro_2024_produccion
       - key: API_KEY_AUTH_ENABLED

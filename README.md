@@ -119,7 +119,7 @@ El proyecto utiliza MongoDB Atlas con las siguientes colecciones:
 ### Variables de entorno para producción:
 ```env
 NODE_ENV=production
-MONGODB_URI=mongodb+srv://carlitoseuan2002:Cooper2024@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0
+MONGODB_URI=mongodb+srv://Dark144:Cooper144467@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0
 JWT_SECRET=tu_jwt_secret_super_seguro_2024_produccion
 API_KEY_AUTH_ENABLED=true
 API_KEY_HEADER_NAME=X-API-Key

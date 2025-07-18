@@ -19,11 +19,11 @@ console.log('4. Haz redeploy');
 console.log('');
 
 console.log('✅ URI CORRECTA PARA RENDER:');
-console.log('mongodb+srv://carlitoseuan2002:Cooper2024@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0');
+console.log('mongodb+srv://Dark144:Cooper144467@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0');
 console.log('');
 
 console.log('📋 TODAS LAS VARIABLES PARA RENDER:');
-console.log('MONGODB_URI=mongodb+srv://carlitoseuan2002:Cooper2024@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0');
+console.log('MONGODB_URI=mongodb+srv://Dark144:Cooper144467@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0');
 console.log('NODE_ENV=production');
 console.log('JWT_SECRET=tu_jwt_secret_super_seguro_2024_produccion');
 console.log('API_KEY_AUTH_ENABLED=true');

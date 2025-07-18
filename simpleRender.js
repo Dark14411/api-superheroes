@@ -6,7 +6,7 @@ console.log('📋 SOLO 2 VARIABLES OBLIGATORIAS:');
 console.log('');
 
 console.log('1. MONGODB_URI:');
-console.log('mongodb+srv://carlitoseuan2002:Cooper2024@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas');
+console.log('mongodb+srv://Dark144:Cooper144467@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas');
 console.log('');
 
 console.log('2. NODE_ENV:');
