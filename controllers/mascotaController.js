@@ -10,7 +10,7 @@ const router = express.Router();
  *   securitySchemes:
  *     BearerAuth:
  *       type: http
- *       scheme: bearer
+ *       scheme: apitoken
  *       bearerFormat: JWT
  *       description: JWT token obtenido al iniciar sesión
  *   schemas:

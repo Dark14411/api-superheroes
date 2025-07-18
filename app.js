@@ -58,7 +58,7 @@ const swaggerOptions = {
       securitySchemes: {
         BearerAuth: {
           type: 'http',
-          scheme: 'bearer',
+          scheme: 'apitoken',
           bearerFormat: 'JWT',
           description: 'JWT token obtenido al iniciar sesión'
         }

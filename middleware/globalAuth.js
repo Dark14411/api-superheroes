@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-// Middleware de autenticación global con JWT Bearer Token
+// Middleware de autenticación global con JWT apitoken
 export const globalAuth = async (req, res, next) => {
   try {
     // Obtener token del header Authorization
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const token = authHeader && authHeader.split(' ')[1]; // apitoken TOKEN
 
     if (!token) {
       return res.status(401).json({
@@ -15,8 +15,8 @@ export const globalAuth = async (req, res, next) => {
         error: 'Token requerido',
         solution: 'Debes iniciar sesión para obtener un token JWT',
         example: {
-          header: 'Authorization: Bearer tu_token_jwt',
-          curl: 'curl -H "Authorization: Bearer tu_token_jwt" http://localhost:3001/api/heroes'
+          header: 'Authorization: apitoken tu_token_jwt',
+          curl: 'curl -H "Authorization: apitoken tu_token_jwt" http://localhost:3001/api/heroes'
         }
       });
     }
@@ -118,7 +118,7 @@ export const authRequired = (req, res, next) => {
         }
       },
       auth_header: {
-        Authorization: 'Bearer tu_token_jwt'
+        Authorization: 'apitoken tu_token_jwt'
       }
     }
   });
