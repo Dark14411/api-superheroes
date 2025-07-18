@@ -62,6 +62,64 @@ class MascotaRepository {
         }
     }
 
+    // Obtener mascotas disponibles para adopción
+    async obtenerMascotasDisponibles() {
+        try {
+            return await Mascota.findDisponibles().sort({ fechaCreacion: -1 });
+        } catch (error) {
+            throw new Error(`Error al obtener mascotas disponibles: ${error.message}`);
+        }
+    }
+
+    // Obtener mascotas adoptadas
+    async obtenerMascotasAdoptadas() {
+        try {
+            return await Mascota.findAdoptadas().sort({ fechaAdopcion: -1 });
+        } catch (error) {
+            throw new Error(`Error al obtener mascotas adoptadas: ${error.message}`);
+        }
+    }
+
+    // Adoptar una mascota
+    async adoptarMascota(id, propietarioId) {
+        try {
+            const mascota = await Mascota.findById(id);
+            if (!mascota) {
+                throw new Error('Mascota no encontrada');
+            }
+
+            if (mascota.adoptada) {
+                throw new Error('Esta mascota ya ha sido adoptada');
+            }
+
+            return await mascota.adoptar(propietarioId);
+        } catch (error) {
+            throw new Error(`Error al adoptar mascota: ${error.message}`);
+        }
+    }
+
+    // Abandonar una mascota
+    async abandonarMascota(id, propietarioId) {
+        try {
+            const mascota = await Mascota.findById(id);
+            if (!mascota) {
+                throw new Error('Mascota no encontrada');
+            }
+
+            if (!mascota.adoptada) {
+                throw new Error('Esta mascota no está adoptada');
+            }
+
+            if (mascota.propietarioId !== propietarioId) {
+                throw new Error('No tienes permisos para abandonar esta mascota');
+            }
+
+            return await mascota.abandonar();
+        } catch (error) {
+            throw new Error(`Error al abandonar mascota: ${error.message}`);
+        }
+    }
+
     // Actualizar mascota
     async actualizarMascota(id, datosActualizados) {
         try {

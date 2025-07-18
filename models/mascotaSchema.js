@@ -121,9 +121,20 @@ const mascotaSchema = new mongoose.Schema({
     // Campo de propietario - REQUERIDO para seguridad
     propietarioId: {
         type: String,
-        required: true,
+        required: false, // Cambiado a false para permitir mascotas sin propietario
         ref: 'User',
         description: 'ID del usuario propietario de la mascota'
+    },
+    // Estado de adopción
+    adoptada: {
+        type: Boolean,
+        default: false,
+        description: 'Indica si la mascota ha sido adoptada'
+    },
+    fechaAdopcion: {
+        type: Date,
+        default: null,
+        description: 'Fecha cuando la mascota fue adoptada'
     },
     nombre: {
         type: String,
@@ -306,6 +317,8 @@ mascotaSchema.index({ elemento: 1 });
 mascotaSchema.index({ muerto: 1 });
 mascotaSchema.index({ 'enfermedades.tipo': 1 });
 mascotaSchema.index({ fechaCreacion: -1 });
+mascotaSchema.index({ adoptada: 1 });
+mascotaSchema.index({ propietarioId: 1 });
 
 // Métodos de instancia
 mascotaSchema.methods.aplicarEfectosEnfermedades = function() {
@@ -410,6 +423,39 @@ mascotaSchema.statics.findEnfermas = function() {
     return this.find({
         'enfermedades': { $elemMatch: { curada: false } }
     });
+};
+
+// Métodos para adopción
+mascotaSchema.statics.findDisponibles = function() {
+    return this.find({ adoptada: false });
+};
+
+mascotaSchema.statics.findAdoptadas = function() {
+    return this.find({ adoptada: true });
+};
+
+mascotaSchema.methods.adoptar = function(propietarioId) {
+    if (this.adoptada) {
+        throw new Error('Esta mascota ya ha sido adoptada');
+    }
+    
+    this.propietarioId = propietarioId;
+    this.adoptada = true;
+    this.fechaAdopcion = new Date();
+    
+    return this.save();
+};
+
+mascotaSchema.methods.abandonar = function() {
+    if (!this.adoptada) {
+        throw new Error('Esta mascota no está adoptada');
+    }
+    
+    this.propietarioId = null;
+    this.adoptada = false;
+    this.fechaAdopcion = null;
+    
+    return this.save();
 };
 
 // Middleware pre-save

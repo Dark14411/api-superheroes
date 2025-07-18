@@ -871,4 +871,203 @@ router.post('/mascotas/:id/desarrollar-problema-pelo', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/mascotas/disponibles:
+ *   get:
+ *     summary: Obtiene todas las mascotas disponibles para adopción
+ *     description: Endpoint que muestra mascotas que no han sido adoptadas
+ *     tags: [Mascotas]
+ *     security:
+ *       - Bearer: []
+ *     responses:
+ *       200:
+ *         description: Lista de mascotas disponibles obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total:
+ *                   type: integer
+ *                 mascotas:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Mascota'
+ *       500:
+ *         description: Error del servidor
+ */
+router.get("/mascotas/disponibles", async (req, res) => {
+    try {
+        const mascotas = await mascotaRepository.obtenerMascotasDisponibles();
+        res.json({
+            total: mascotas.length,
+            mascotas: mascotas,
+            mensaje: `Hay ${mascotas.length} mascotas disponibles para adopción`
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * @swagger
+ * /api/mascotas/adoptadas:
+ *   get:
+ *     summary: Obtiene todas las mascotas adoptadas
+ *     description: Endpoint que muestra todas las mascotas que han sido adoptadas
+ *     tags: [Mascotas]
+ *     security:
+ *       - Bearer: []
+ *     responses:
+ *       200:
+ *         description: Lista de mascotas adoptadas obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total:
+ *                   type: integer
+ *                 mascotas:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Mascota'
+ *       500:
+ *         description: Error del servidor
+ */
+router.get("/mascotas/adoptadas", async (req, res) => {
+    try {
+        const mascotas = await mascotaRepository.obtenerMascotasAdoptadas();
+        res.json({
+            total: mascotas.length,
+            mascotas: mascotas,
+            mensaje: `Hay ${mascotas.length} mascotas adoptadas en total`
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * @swagger
+ * /api/mascotas/{id}/adoptar:
+ *   post:
+ *     summary: Adoptar una mascota disponible
+ *     description: Endpoint para adoptar una mascota que no ha sido adoptada
+ *     tags: [Mascotas]
+ *     security:
+ *       - Bearer: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la mascota a adoptar
+ *     responses:
+ *       200:
+ *         description: Mascota adoptada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
+ *                 mascota:
+ *                   $ref: '#/components/schemas/Mascota'
+ *       400:
+ *         description: Error en la adopción
+ *       404:
+ *         description: Mascota no encontrada
+ *       500:
+ *         description: Error del servidor
+ */
+router.post("/mascotas/:id/adoptar", async (req, res) => {
+    try {
+        // Verificar que el usuario está autenticado
+        if (!req.userId) {
+            return res.status(401).json({ error: 'Usuario no autenticado' });
+        }
+
+        const mascota = await mascotaRepository.adoptarMascota(req.params.id, req.userId);
+        res.json({
+            mensaje: `¡Felicidades! Has adoptado a ${mascota.nombre}`,
+            mascota: mascota,
+            fechaAdopcion: mascota.fechaAdopcion
+        });
+    } catch (error) {
+        if (error.message.includes('ya ha sido adoptada')) {
+            res.status(400).json({ error: error.message });
+        } else if (error.message.includes('no encontrada')) {
+            res.status(404).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
+    }
+});
+
+/**
+ * @swagger
+ * /api/mascotas/{id}/abandonar:
+ *   post:
+ *     summary: Abandonar una mascota adoptada
+ *     description: Endpoint para abandonar una mascota que has adoptado
+ *     tags: [Mascotas]
+ *     security:
+ *       - Bearer: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la mascota a abandonar
+ *     responses:
+ *       200:
+ *         description: Mascota abandonada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
+ *                 mascota:
+ *                   $ref: '#/components/schemas/Mascota'
+ *       400:
+ *         description: Error al abandonar
+ *       403:
+ *         description: No tienes permisos
+ *       404:
+ *         description: Mascota no encontrada
+ *       500:
+ *         description: Error del servidor
+ */
+router.post("/mascotas/:id/abandonar", async (req, res) => {
+    try {
+        // Verificar que el usuario está autenticado
+        if (!req.userId) {
+            return res.status(401).json({ error: 'Usuario no autenticado' });
+        }
+
+        const mascota = await mascotaRepository.abandonarMascota(req.params.id, req.userId);
+        res.json({
+            mensaje: `Has abandonado a ${mascota.nombre}. Ahora está disponible para adopción.`,
+            mascota: mascota
+        });
+    } catch (error) {
+        if (error.message.includes('no tienes permisos')) {
+            res.status(403).json({ error: error.message });
+        } else if (error.message.includes('no está adoptada')) {
+            res.status(400).json({ error: error.message });
+        } else if (error.message.includes('no encontrada')) {
+            res.status(404).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: error.message });
+        }
+    }
+});
+
 export default router; 
