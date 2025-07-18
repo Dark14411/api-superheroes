@@ -79,6 +79,28 @@ app.get('/swagger.json', (req, res) => {
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
+// Ruta raíz - Redirigir a Swagger
+app.get('/', (req, res) => {
+    res.redirect('/api-docs');
+});
+
+// Ruta de información de la API (sin autenticación)
+app.get('/api/info', (req, res) => {
+    res.json({
+        message: 'API de Superhéroes y Mascotas funcionando correctamente!',
+        version: '2.0.0',
+        endpoints: {
+            auth: '/api/auth',
+            heroes: '/api/heroes',
+            mascotas: '/api/mascotas',
+            items: '/api/items',
+            docs: '/api-docs'
+        },
+        note: 'Todos los endpoints requieren JWT Bearer Token excepto /api/auth',
+        authentication: 'Registra un usuario y obtén un token JWT para acceder a los endpoints'
+    })
+})
+
 // Rutas de autenticación (sin protección)
 app.use('/api/auth', authRoutes)
 
@@ -90,24 +112,6 @@ app.use('/api', heroController)
 app.use('/api', mascotaController)
 app.use('/api', itemController)
 
-// Ruta de prueba (protegida)
-app.get('/', globalAuth, (req, res) => {
-    res.json({
-        message: 'API de Superhéroes y Mascotas funcionando correctamente!',
-        version: '2.0.0',
-        authenticated: req.isAuthenticated,
-        endpoints: {
-            auth: '/api/auth',
-            heroes: '/api/heroes',
-            mascotas: '/api/mascotas',
-            items: '/api/items',
-            docs: '/api-docs'
-        },
-        note: 'Todos los endpoints requieren API Key excepto /api/auth',
-        apiKey: 'Registra un usuario para obtener tu API Key personal'
-    })
-})
-
 const PORT = process.env.PORT || 3001
 
 const startServer = async () => {
@@ -118,11 +122,12 @@ const startServer = async () => {
         app.listen(PORT, () => {
             console.log(`🚀 Servidor corriendo en el puerto ${PORT}`)
             console.log(`📚 Documentación Swagger disponible en: http://localhost:${PORT}/api-docs`)
-            console.log(`🌐 API Base: http://localhost:${PORT}`)
+            console.log(`🌐 Página principal: http://localhost:${PORT} (redirige a Swagger)`)
             console.log(`🔐 Endpoint Auth: http://localhost:${PORT}/api/auth`)
             console.log(`🦸‍♂️ Endpoint Héroes: http://localhost:${PORT}/api/heroes`)
             console.log(`🐉 Endpoint Mascotas: http://localhost:${PORT}/api/mascotas`)
             console.log(`🎁 Endpoint Items: http://localhost:${PORT}/api/items`)
+            console.log(`ℹ️ Info API: http://localhost:${PORT}/api/info`)
         })
     } catch (error) {
         console.error('❌ Error al iniciar el servidor:', error)
