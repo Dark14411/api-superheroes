@@ -126,7 +126,7 @@ export const login = async (req, res) => {
           lastLogin: user.lastLogin
         },
         token: token,
-        note: 'Usa este token en el header Authorization: apitoken <token>'
+        note: 'Usa este token en el header Authorization: Bearer <token>'
       }
     });
 

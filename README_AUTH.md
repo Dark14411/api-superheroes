@@ -1,10 +1,10 @@
-# 🔐 Sistema de Autenticación con JWT apitoken
+# 🔐 Sistema de Autenticación con JWT Bearer Tokens
 
-Este sistema implementa autenticación basada en JWT (JSON Web Tokens) con apitoken, proporcionando un sistema de autenticación seguro y estándar.
+Este sistema implementa autenticación basada en JWT (JSON Web Tokens) con Bearer Token, proporcionando un sistema de autenticación seguro y estándar.
 
 ## 🚀 Características
 
-- ✅ **JWT apitoken** - Autenticación estándar de la industria
+- ✅ **JWT Bearer Tokens** - Autenticación estándar de la industria
 - ✅ **Registro simplificado** (solo username y password)
 - ✅ **Autenticación global** en todos los endpoints
 - ✅ **Validaciones robustas**
@@ -64,7 +64,7 @@ Inicia sesión con un usuario existente.
       "lastLogin": "2024-01-15T10:30:00.000Z"
     },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "note": "Usa este token en el header Authorization: apitoken <token>"
+    "note": "Usa este token en el header Authorization: Bearer <token>"
   }
 }
 ```
@@ -74,7 +74,7 @@ Obtiene el perfil del usuario autenticado.
 
 **Headers:**
 ```
-Authorization: apitoken eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Respuesta exitosa (200):**
@@ -101,7 +101,7 @@ Cierra la sesión del usuario (el cliente debe eliminar el token).
 
 **Headers:**
 ```
-Authorization: apitoken eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Respuesta exitosa (200):**
@@ -117,7 +117,7 @@ Authorization: apitoken eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### En Postman
 1. **Registro/Login** → Obtienes un token JWT
-2. **En otros endpoints** → Usa `Authorization: apitoken <token>`
+2. **En otros endpoints** → Usa `Authorization: Bearer <token>`
 
 ### En cURL
 **Registrar usuario:**
@@ -143,13 +143,13 @@ curl -X POST http://localhost:3001/api/auth/login \
 **Acceder a endpoints protegidos:**
 ```bash
 curl -X GET http://localhost:3001/api/auth/profile \
-  -H "Authorization: apitoken TU_TOKEN_JWT_AQUI"
+  -H "Authorization: Bearer TU_TOKEN_JWT_AQUI"
 ```
 
 **Acceder a otros endpoints:**
 ```bash
 curl -X GET http://localhost:3001/api/heroes \
-  -H "Authorization: apitoken TU_TOKEN_JWT_AQUI"
+  -H "Authorization: Bearer TU_TOKEN_JWT_AQUI"
 ```
 
 ## 📚 Documentación Swagger
@@ -207,8 +207,8 @@ app.get('/api/heroes', (req, res) => {
   "error": "Token requerido",
   "solution": "Debes iniciar sesión para obtener un token JWT",
   "example": {
-    "header": "Authorization: apitoken tu_token_jwt",
-    "curl": "curl -H \"Authorization: apitoken tu_token_jwt\" http://localhost:3001/api/heroes"
+    "header": "Authorization: Bearer tu_token_jwt",
+    "curl": "curl -H \"Authorization: Bearer tu_token_jwt\" http://localhost:3001/api/heroes"
   }
 }
 ```
@@ -233,7 +233,7 @@ app.get('/api/heroes', (req, res) => {
 
 ## 📝 Notas Importantes
 
-1. **Tokens JWT**: Se deben incluir en el header `Authorization: apitoken <token>`
+1. **Tokens JWT**: Se deben incluir en el header `Authorization: Bearer <token>`
 2. **Contraseñas**: Nunca se almacenan en texto plano
 3. **Validaciones**: Se ejecutan antes de procesar la lógica de negocio
 4. **Roles**: Por defecto todos los usuarios tienen rol "user"
