@@ -7,6 +7,7 @@ import connectDB from './config/database.js'
 import heroController from './controllers/heroController.js'
 import mascotaController from './controllers/mascotaController.js'
 import itemController from './controllers/itemController.js'
+import adopcionController from './controllers/adopcionController.js'
 import authRoutes from './routes/auth.js'
 import { globalAuth } from './middleware/globalAuth.js'
 
@@ -98,6 +99,7 @@ app.get('/api/info', (req, res) => {
             auth: '/api/auth',
             heroes: '/api/heroes',
             mascotas: '/api/mascotas',
+            adopcion: '/api/adopcion',
             items: '/api/items',
             docs: '/api-docs'
         },
@@ -116,6 +118,7 @@ app.use('/api', globalAuth)
 app.use('/api', heroController)
 app.use('/api', mascotaController)
 app.use('/api', itemController)
+app.use('/api/adopcion', adopcionController)
 
 const PORT = process.env.PORT || 3001
 
@@ -131,6 +134,7 @@ const startServer = async () => {
             console.log(`🔐 Endpoint Auth: http://localhost:${PORT}/api/auth`)
             console.log(`🦸‍♂️ Endpoint Héroes: http://localhost:${PORT}/api/heroes`)
             console.log(`🐉 Endpoint Mascotas: http://localhost:${PORT}/api/mascotas`)
+            console.log(`🏠 Endpoint Adopción: http://localhost:${PORT}/api/adopcion`)
             console.log(`🎁 Endpoint Items: http://localhost:${PORT}/api/items`)
             console.log(`ℹ️ Info API: http://localhost:${PORT}/api/info`)
         })
