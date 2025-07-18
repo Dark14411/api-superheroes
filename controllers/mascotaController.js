@@ -8,7 +8,7 @@ const router = express.Router();
  * @swagger
  * components:
  *   securitySchemes:
- *     Bearer: {
+ *     Bearer:
  *       type: apiKey
  *       in: header
  *       name: Authorization
@@ -29,7 +29,6 @@ const router = express.Router();
  *         superpoder:
  *           type: string
  *           description: Superpoder especial de la mascota
-
  *         felicidad:
  *           type: integer
  *           minimum: 0
@@ -60,7 +59,6 @@ const router = express.Router();
  *         id: 1
  *         tipo: "Dragón"
  *         superpoder: "Lanzar fuego"
-
  *         felicidad: 90
  *         estado: "Sunny"
  *         enfermo: false
