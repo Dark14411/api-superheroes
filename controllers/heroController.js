@@ -333,7 +333,7 @@ router.post('/heroes/:id/enfrentar', async (req, res) => {
             return res.status(400).json({ error: 'Nombre del villano es requerido' });
         }
 
-        const hero = await heroService.getHeroById(parseInt(req.params.id));
+        const hero = await heroService.getHeroById(req.params.id);
         const resultado = await heroService.enfrentarVillano(hero, villano);
         
         res.json({
