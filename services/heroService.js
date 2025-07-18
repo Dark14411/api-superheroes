@@ -50,8 +50,8 @@ async function updateHero(id, updatedHero) {
     try {
         const hero = await Hero.findByIdAndUpdate(id, updatedHero, { new: true }).populate('mascotaId');
         if (!hero) {
-            throw new Error('Héroe no encontrado');
-        }
+        throw new Error('Héroe no encontrado');
+    }
         return hero;
     } catch (error) {
         throw new Error(`Error al actualizar héroe: ${error.message}`);
@@ -62,12 +62,12 @@ async function deleteHero(id) {
     try {
         const hero = await Hero.findByIdAndDelete(id);
         if (!hero) {
-            throw new Error('Héroe no encontrado');
-        }
-        return { message: 'Héroe eliminado' };
+        throw new Error('Héroe no encontrado');
+    }
+    return { message: 'Héroe eliminado' };
     } catch (error) {
         throw new Error(`Error al eliminar héroe: ${error.message}`);
-    }
+}
 }
 
 
