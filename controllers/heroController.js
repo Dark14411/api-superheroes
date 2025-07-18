@@ -120,7 +120,7 @@ router.get('/heroes', async (req, res) => {
  */
 router.get('/heroes/:id', async (req, res) => {
     try {
-        const hero = await heroService.getHeroById(parseInt(req.params.id));
+        const hero = await heroService.getHeroById(req.params.id);
         res.json({
             mensaje: "Héroe encontrado exitosamente",
             hero: hero
@@ -235,7 +235,7 @@ router.post('/heroes', async (req, res) => {
  */
 router.put('/heroes/:id', async (req, res) => {
     try {
-        const heroeActualizado = await heroService.updateHero(parseInt(req.params.id), req.body);
+        const heroeActualizado = await heroService.updateHero(req.params.id, req.body);
         res.json({
             mensaje: "Héroe actualizado exitosamente",
             hero: heroeActualizado
@@ -276,7 +276,7 @@ router.put('/heroes/:id', async (req, res) => {
  */
 router.delete('/heroes/:id', async (req, res) => {
     try {
-        await heroService.deleteHero(parseInt(req.params.id));
+        await heroService.deleteHero(req.params.id);
         res.json({
             mensaje: "Héroe eliminado exitosamente"
         });
@@ -396,7 +396,7 @@ router.post('/heroes/:id/adoptar', async (req, res) => {
             return res.status(400).json({ error: 'ID de mascota es requerido' });
         }
 
-        const hero = await heroService.getHeroById(parseInt(req.params.id));
+        const hero = await heroService.getHeroById(req.params.id);
         const mascota = await mascotaService.getMascotaById(mascotaId);
         
         const heroeActualizado = await heroService.adoptarMascota(hero, mascotaId);
@@ -444,7 +444,7 @@ router.post('/heroes/:id/adoptar', async (req, res) => {
  */
 router.post('/heroes/:id/abandonar', async (req, res) => {
     try {
-        const hero = await heroService.getHeroById(parseInt(req.params.id));
+        const hero = await heroService.getHeroById(req.params.id);
         
         if (!hero.mascotaId) {
             return res.status(400).json({ error: 'El héroe no tiene una mascota para abandonar' });

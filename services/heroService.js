@@ -47,35 +47,27 @@ async function addHero(heroData) {
 }
 
 async function updateHero(id, updatedHero) {
-    const heroes = await heroRepository.getHeroes();
-    const index = heroes.findIndex(hero => hero.id === parseInt(id));
-    if (index === -1) {
-        throw new Error('Héroe no encontrado');
-    }
-    
-    // Verificar si la mascota ya está adoptada por otro héroe
-    if (updatedHero.mascotaId) {
-        const mascotaAdoptada = heroes.find(h => h.mascotaId === updatedHero.mascotaId && h.id !== parseInt(id));
-        if (mascotaAdoptada) {
-            throw new Error(`La mascota con ID ${updatedHero.mascotaId} ya está adoptada por ${mascotaAdoptada.alias}`);
+    try {
+        const hero = await Hero.findByIdAndUpdate(id, updatedHero, { new: true }).populate('mascotaId');
+        if (!hero) {
+            throw new Error('Héroe no encontrado');
         }
+        return hero;
+    } catch (error) {
+        throw new Error(`Error al actualizar héroe: ${error.message}`);
     }
-    
-    delete updatedHero.id;
-    heroes[index] = { ...heroes[index], ...updatedHero };
-    await heroRepository.saveHeroes(heroes);
-    return heroes[index];
 }
 
 async function deleteHero(id) {
-    const heroes = await heroRepository.getHeroes();
-    const index = heroes.findIndex(hero => hero.id === parseInt(id));
-    if (index === -1) {
-        throw new Error('Héroe no encontrado');
+    try {
+        const hero = await Hero.findByIdAndDelete(id);
+        if (!hero) {
+            throw new Error('Héroe no encontrado');
+        }
+        return { message: 'Héroe eliminado' };
+    } catch (error) {
+        throw new Error(`Error al eliminar héroe: ${error.message}`);
     }
-    const filteredHeroes = heroes.filter(hero => hero.id !== parseInt(id));
-    await heroRepository.saveHeroes(filteredHeroes);
-    return { message: 'Héroe eliminado' };
 }
 
 
