@@ -13,21 +13,21 @@ class MascotaRepository {
         }
     }
 
-    // Obtener todas las mascotas
-    async obtenerTodasLasMascotas() {
+    // Obtener todas las mascotas del usuario
+    async obtenerTodasLasMascotas(propietarioId) {
         try {
-            return await Mascota.find().sort({ fechaCreacion: -1 });
+            return await Mascota.find({ propietarioId }).sort({ fechaCreacion: -1 });
         } catch (error) {
             throw new Error(`Error al obtener mascotas: ${error.message}`);
         }
     }
 
-    // Obtener mascota por ID
-    async obtenerMascotaPorId(id) {
+    // Obtener mascota por ID (solo si es del propietario)
+    async obtenerMascotaPorId(id, propietarioId) {
         try {
-            const mascota = await Mascota.findById(id);
+            const mascota = await Mascota.findOne({ _id: id, propietarioId });
             if (!mascota) {
-                throw new Error('Mascota no encontrada');
+                throw new Error('Mascota no encontrada o no tienes permisos');
             }
             return mascota;
         } catch (error) {

@@ -96,7 +96,12 @@ const router = express.Router();
  */
 router.get("/mascotas", async (req, res) => {
     try {
-        const mascotas = await mascotaRepository.obtenerTodasLasMascotas();
+        // Verificar que el usuario está autenticado
+        if (!req.userId) {
+            return res.status(401).json({ error: 'Usuario no autenticado' });
+        }
+
+        const mascotas = await mascotaRepository.obtenerTodasLasMascotas(req.userId);
         res.json({
             total: mascotas.length,
             mascotas: mascotas,
@@ -145,7 +150,18 @@ router.get("/mascotas", async (req, res) => {
  */
 router.post("/mascotas", async (req, res) => {
     try {
-        const nuevaMascota = await mascotaRepository.crearMascota(req.body);
+        // Verificar que el usuario está autenticado
+        if (!req.userId) {
+            return res.status(401).json({ error: 'Usuario no autenticado' });
+        }
+
+        // Asignar el propietario automáticamente
+        const datosMascota = {
+            ...req.body,
+            propietarioId: req.userId
+        };
+
+        const nuevaMascota = await mascotaRepository.crearMascota(datosMascota);
         res.status(201).json({
             mensaje: "Mascota creada exitosamente",
             mascota: nuevaMascota
@@ -186,13 +202,20 @@ router.post("/mascotas", async (req, res) => {
  */
 router.get("/mascotas/:id", async (req, res) => {
     try {
-        const mascota = await mascotaRepository.obtenerMascotaPorId(req.params.id);
+        // Verificar que el usuario está autenticado
+        if (!req.userId) {
+            return res.status(401).json({ error: 'Usuario no autenticado' });
+        }
+
+        const mascota = await mascotaRepository.obtenerMascotaPorId(req.params.id, req.userId);
         res.json({
             mensaje: "Mascota encontrada",
             mascota: mascota
         });
     } catch (error) {
-        if (error.message === 'Mascota no encontrada') {
+        if (error.message === 'Mascota no encontrada o no tienes permisos') {
+            res.status(403).json({ error: 'No tienes permisos para ver esta mascota' });
+        } else if (error.message === 'Mascota no encontrada') {
             res.status(404).json({ error: error.message });
         } else {
             res.status(500).json({ error: error.message });

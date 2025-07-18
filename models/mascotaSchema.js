@@ -118,6 +118,13 @@ const problemaPeloSchema = new mongoose.Schema({
 
 // Esquema principal de mascota
 const mascotaSchema = new mongoose.Schema({
+    // Campo de propietario - REQUERIDO para seguridad
+    propietarioId: {
+        type: String,
+        required: true,
+        ref: 'User',
+        description: 'ID del usuario propietario de la mascota'
+    },
     nombre: {
         type: String,
         required: true,
