@@ -83,7 +83,8 @@ class MascotaRepository {
     // Adoptar una mascota
     async adoptarMascota(id, propietarioId) {
         try {
-            const mascota = await Mascota.findById(id);
+            // Buscar por ID numérico en lugar de ObjectId
+            const mascota = await Mascota.findOne({ id: parseInt(id) });
             if (!mascota) {
                 throw new Error('Mascota no encontrada');
             }
@@ -101,7 +102,8 @@ class MascotaRepository {
     // Abandonar una mascota
     async abandonarMascota(id, propietarioId) {
         try {
-            const mascota = await Mascota.findById(id);
+            // Buscar por ID numérico en lugar de ObjectId
+            const mascota = await Mascota.findOne({ id: parseInt(id) });
             if (!mascota) {
                 throw new Error('Mascota no encontrada');
             }
