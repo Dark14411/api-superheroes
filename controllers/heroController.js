@@ -50,7 +50,7 @@ const router = express.Router();
  *     summary: Obtiene todos los héroes
  *     tags: [Héroes]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de héroes obtenida exitosamente
@@ -93,7 +93,7 @@ router.get('/heroes', async (req, res) => {
  *     summary: Obtiene un héroe por ID
  *     tags: [Héroes]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -141,7 +141,7 @@ router.get('/heroes/:id', async (req, res) => {
  *     summary: Crear un nuevo héroe
  *     tags: [Héroes]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -196,7 +196,7 @@ router.post('/heroes', async (req, res) => {
  *     summary: Actualizar un héroe existente
  *     tags: [Héroes]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -256,7 +256,7 @@ router.put('/heroes/:id', async (req, res) => {
  *     summary: Eliminar un héroe
  *     tags: [Héroes]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -296,7 +296,7 @@ router.delete('/heroes/:id', async (req, res) => {
  *     summary: Enfrentar a un villano con el héroe
  *     tags: [Héroes]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -357,7 +357,7 @@ router.post('/heroes/:id/enfrentar', async (req, res) => {
  *     summary: Adoptar una mascota para el héroe
  *     tags: [Héroes]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -422,7 +422,7 @@ router.post('/heroes/:id/adoptar', async (req, res) => {
  *     summary: Abandonar la mascota actual del héroe
  *     tags: [Héroes]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

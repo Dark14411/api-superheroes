@@ -148,7 +148,7 @@ router.get('/profile', globalAuth, getProfile);
  *     summary: Cerrar sesión
  *     tags: [Autenticación]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Logout exitoso

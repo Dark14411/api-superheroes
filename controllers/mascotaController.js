@@ -8,11 +8,11 @@ const router = express.Router();
  * @swagger
  * components:
  *   securitySchemes:
- *     ApiKeyAuth:
- *       type: apiKey
- *       in: header
- *       name: x-api-key
- *       description: ApiKeyAuth (apiKey)
+ *     BearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *       description: JWT token obtenido al iniciar sesión
  *   schemas:
  *     Mascota:
  *       type: object
@@ -76,7 +76,7 @@ const router = express.Router();
  *     description: Endpoint protegido que requiere autenticación
  *     tags: [Mascotas]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de mascotas obtenida exitosamente
@@ -119,7 +119,7 @@ router.get("/mascotas", async (req, res) => {
  *     summary: Crear una nueva mascota
  *     tags: [Mascotas]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -178,7 +178,7 @@ router.post("/mascotas", async (req, res) => {
  *     summary: Obtiene una mascota por ID
  *     tags: [Mascotas]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -230,7 +230,7 @@ router.get("/mascotas/:id", async (req, res) => {
  *     summary: Actualizar una mascota existente
  *     tags: [Mascotas]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -288,7 +288,7 @@ router.put("/mascotas/:id", async (req, res) => {
  *     summary: Eliminar una mascota
  *     tags: [Mascotas]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -326,7 +326,7 @@ router.delete("/mascotas/:id", async (req, res) => {
  *     summary: Sacar a pasear a la mascota (aumenta felicidad)
  *     tags: [Mascotas]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -361,7 +361,7 @@ router.post('/mascotas/:id/pasear', async (req, res) => {
  *     summary: Alimentar a la mascota (sistema realista con riesgo de enfermedades por sobrealimentación)
  *     tags: [Mascotas]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -426,7 +426,7 @@ router.post('/mascotas/:id/alimentar', async (req, res) => {
  *     summary: Enfermar a la mascota (aplica una enfermedad)
  *     tags: [Mascotas]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -481,7 +481,7 @@ router.post('/mascotas/:id/enfermar', async (req, res) => {
  *     summary: Curar una enfermedad de la mascota
  *     tags: [Mascotas]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
