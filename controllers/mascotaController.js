@@ -36,7 +36,13 @@ const router = express.Router();
  *           description: Nivel de felicidad de la mascota
  *         estado:
  *           type: string
- *           enum: [Sunny, Gipsy, Sick, Happy, Sad, Dead]
+ *           enum:
+ *             - Sunny
+ *             - Gipsy
+ *             - Sick
+ *             - Happy
+ *             - Sad
+ *             - Dead
  *           description: Estado emocional actual
  *         enfermo:
  *           type: boolean
@@ -441,7 +447,11 @@ router.post('/mascotas/:id/alimentar', async (req, res) => {
  *             properties:
  *               tipo:
  *                 type: string
- *                 enum: [sarna, gripe, pelos_estomago, pata_rota]
+ *                 enum:
+ *                   - sarna
+ *                   - gripe
+ *                   - pelos_estomago
+ *                   - pata_rota
  *                 description: Tipo de enfermedad
  *     responses:
  *       200:
@@ -496,7 +506,19 @@ router.post('/mascotas/:id/enfermar', async (req, res) => {
  *             properties:
  *               tipo:
  *                 type: string
- *                 enum: [sarna, gripe, pelos_estomago, pata_rota, obesidad, diabetes, indigestion, intoxicacion_alimentaria, colesterol_alto, gastritis, pancreatitis, sobrepeso]
+ *                 enum:
+ *                   - sarna
+ *                   - gripe
+ *                   - pelos_estomago
+ *                   - pata_rota
+ *                   - obesidad
+ *                   - diabetes
+ *                   - indigestion
+ *                   - intoxicacion_alimentaria
+ *                   - colesterol_alto
+ *                   - gastritis
+ *                   - pancreatitis
+ *                   - sobrepeso
  *                 description: Tipo de enfermedad a curar
  *     responses:
  *       200:
@@ -639,7 +661,15 @@ router.post('/mascotas/:id/revivir', async (req, res) => {
  *             properties:
  *               condicion:
  *                 type: string
- *                 enum: [hambre_extrema, sed_extrema, estres_alto, cansancio_extremo, sobrealimentacion, sobrehidratacion, ejercicio_excesivo, descanso_excesivo]
+ *                 enum:
+ *                   - hambre_extrema
+ *                   - sed_extrema
+ *                   - estres_alto
+ *                   - cansancio_extremo
+ *                   - sobrealimentacion
+ *                   - sobrehidratacion
+ *                   - ejercicio_excesivo
+ *                   - descanso_excesivo
  *                 description: Condición específica para asignar enfermedad
  *     responses:
  *       200:
@@ -699,7 +729,10 @@ router.post('/mascotas/:id/enfermar-aleatorio', async (req, res) => {
  *             properties:
  *               intensidad:
  *                 type: string
- *                 enum: [suave, normal, intenso]
+ *                 enum:
+ *                   - suave
+ *                   - normal
+ *                   - intenso
  *                 default: normal
  *                 description: Intensidad del cepillado
  *     responses:
@@ -753,7 +786,11 @@ router.post('/mascotas/:id/cepillar-pelo', async (req, res) => {
  *             properties:
  *               tratamiento:
  *                 type: string
- *                 enum: [pasta_malta, aceite_oliva, fibra_extra, laxante_veterinario]
+ *                 enum:
+ *                   - pasta_malta
+ *                   - aceite_oliva
+ *                   - fibra_extra
+ *                   - laxante_veterinario
  *                 description: Tipo de tratamiento a aplicar
  *     responses:
  *       200:
@@ -837,7 +874,12 @@ router.get('/mascotas/:id/info-problemas-pelo', async (req, res) => {
  *             properties:
  *               gravedad:
  *                 type: string
- *                 enum: [leve, moderado, grave, gastritis, conductual]
+ *                 enum:
+ *                   - leve
+ *                   - moderado
+ *                   - grave
+ *                   - gastritis
+ *                   - conductual
  *                 description: Gravedad del problema de pelo a desarrollar
  *     responses:
  *       200:

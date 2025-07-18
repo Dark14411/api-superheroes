@@ -24,11 +24,18 @@ const router = express.Router()
  *           description: Nombre del ítem
  *         tipo:
  *           type: string
- *           enum: [comida, medicina, juguete, cura]
+ *           enum:
+ *             - comida
+ *             - medicina
+ *             - juguete
+ *             - cura
  *           description: Tipo de ítem
  *         efecto:
  *           type: string
- *           enum: [salud, felicidad, ambos]
+ *           enum:
+ *             - salud
+ *             - felicidad
+ *             - ambos
  *           description: Efecto que produce el ítem
  *         valor:
  *           type: number
@@ -64,13 +71,20 @@ const router = express.Router()
  *         name: tipo
  *         schema:
  *           type: string
- *           enum: [comida, medicina, juguete, cura]
+ *           enum:
+ *             - comida
+ *             - medicina
+ *             - juguete
+ *             - cura
  *         description: Filtrar por tipo de ítem
  *       - in: query
  *         name: efecto
  *         schema:
  *           type: string
- *           enum: [salud, felicidad, ambos]
+ *           enum:
+ *             - salud
+ *             - felicidad
+ *             - ambos
  *         description: Filtrar por efecto del ítem
  *       - in: query
  *         name: esGratuito
@@ -319,7 +333,11 @@ router.get('/items/buscar', async (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *           enum: [comida, medicina, juguete, cura]
+ *           enum:
+ *             - comida
+ *             - medicina
+ *             - juguete
+ *             - cura
  *         description: Tipo de ítem
  *     responses:
  *       200:
