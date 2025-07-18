@@ -84,52 +84,7 @@ router.get('/heroes', async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/heroes/city/{city}:
- *   get:
- *     summary: Busca superhéroes por ciudad
- *     tags: [Héroes]
- *     security:
- *       - ApiKeyAuth: []
- *     parameters:
- *       - in: path
- *         name: city
- *         schema:
- *           type: string
- *         required: true
- *         description: Nombre de la ciudad
- *     responses:
- *       200:
- *         description: Superhéroes encontrados en la ciudad
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 total:
- *                   type: integer
- *                 heroes:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Hero'
- *       401:
- *         description: No autorizado - Se requiere API Key
- *       500:
- *         description: Error del servidor
- */
-router.get('/heroes/city/:city', async (req, res) => {
-    try {
-        const heroes = await heroService.findHeroesByCity(req.params.city);
-        res.json({
-            total: heroes.length,
-            heroes: heroes,
-            mensaje: `Se encontraron ${heroes.length} héroes en ${req.params.city}`
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+
 
 /**
  * @swagger

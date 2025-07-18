@@ -78,20 +78,7 @@ async function deleteHero(id) {
     return { message: 'Héroe eliminado' };
 }
 
-async function findHeroesByCity(city) {
-    const heroes = await heroRepository.getHeroes();
-    const mascotas = await mascotaRepository.getMascotas();
-    
-    const filteredHeroes = heroes.filter(hero => hero.city && hero.city.toLowerCase() === city.toLowerCase());
-    
-    return filteredHeroes.map(hero => {
-        const mascota = mascotas.find(m => m.id === hero.mascotaId)
-        return {
-            ...hero,
-            mascota: mascota || null
-        }
-    });
-}
+
 
 async function enfrentarVillano(hero, villano) {
     if (!hero || !villano) {
@@ -183,7 +170,6 @@ export default {
     addHero,
     updateHero,
     deleteHero,
-    findHeroesByCity,
     enfrentarVillano,
     adoptarMascota,
     abandonarMascota
