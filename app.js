@@ -56,7 +56,7 @@ const swaggerOptions = {
     ],
     components: {
       securitySchemes: {
-        BearerAuth: {
+        Bearer: {
           type: 'apiKey',
           in: 'header',
           name: 'Authorization',

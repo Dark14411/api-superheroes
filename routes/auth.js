@@ -116,7 +116,7 @@ router.post('/login', loginValidation, login);
  *     summary: Obtener perfil del usuario autenticado
  *     tags: [Autenticación]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     responses:
  *       200:
  *         description: Perfil del usuario
@@ -148,7 +148,7 @@ router.get('/profile', globalAuth, getProfile);
  *     summary: Cerrar sesión
  *     tags: [Autenticación]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     responses:
  *       200:
  *         description: Logout exitoso

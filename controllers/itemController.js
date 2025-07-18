@@ -58,7 +58,7 @@ const router = express.Router()
  *     description: Retorna una lista de todos los ítems disponibles en el sistema
  *     tags: [Items]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     parameters:
  *       - in: query
  *         name: tipo
@@ -146,7 +146,7 @@ router.get('/items', async (req, res) => {
  *     description: Retorna estadísticas generales sobre los ítems
  *     tags: [Items]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     responses:
  *       200:
  *         description: Estadísticas de ítems
@@ -222,7 +222,7 @@ router.get('/items/estadisticas', async (req, res) => {
  *     description: Retorna todos los ítems que son gratuitos
  *     tags: [Items]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     responses:
  *       200:
  *         description: Lista de ítems gratuitos
@@ -258,7 +258,7 @@ router.get('/items/gratuitos', async (req, res) => {
  *     description: Busca ítems que contengan el término especificado en su nombre
  *     tags: [Items]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     parameters:
  *       - in: query
  *         name: q
@@ -312,7 +312,7 @@ router.get('/items/buscar', async (req, res) => {
  *     description: Retorna todos los ítems de un tipo específico
  *     tags: [Items]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     parameters:
  *       - in: path
  *         name: tipo
@@ -365,7 +365,7 @@ router.get('/items/tipo/:tipo', async (req, res) => {
  *     description: Retorna un ítem específico por su ID
  *     tags: [Items]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -416,7 +416,7 @@ router.get('/items/:id', async (req, res) => {
  *     description: Crea un nuevo ítem en el sistema
  *     tags: [Items]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     requestBody:
  *       required: true
  *       content:
@@ -467,7 +467,7 @@ router.post('/items', async (req, res) => {
  *     description: Actualiza un ítem existente por su ID
  *     tags: [Items]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -528,7 +528,7 @@ router.put('/items/:id', async (req, res) => {
  *     description: Elimina un ítem del sistema por su ID
  *     tags: [Items]
  *     security:
- *       - BearerAuth: []
+ *       - Bearer: []
  *     parameters:
  *       - in: path
  *         name: id
