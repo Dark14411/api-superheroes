@@ -267,7 +267,7 @@ router.get("/mascotas/:id", async (req, res) => {
  */
 router.put("/mascotas/:id", async (req, res) => {
     try {
-        const mascotaActualizada = await mascotaService.updateMascota(parseInt(req.params.id), req.body);
+        const mascotaActualizada = await mascotaRepository.updateMascota(parseInt(req.params.id), req.body);
         res.json({
             mensaje: "Mascota actualizada exitosamente",
             mascota: mascotaActualizada
@@ -306,7 +306,7 @@ router.put("/mascotas/:id", async (req, res) => {
  */
 router.delete("/mascotas/:id", async (req, res) => {
     try {
-        await mascotaService.deleteMascota(parseInt(req.params.id));
+        await mascotaRepository.deleteMascota(parseInt(req.params.id));
         res.json({
             mensaje: "Mascota eliminada exitosamente"
         });
@@ -344,10 +344,10 @@ router.delete("/mascotas/:id", async (req, res) => {
  */
 router.post('/mascotas/:id/pasear', async (req, res) => {
     try {
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         mascota.felicidad = Math.min(100, mascota.felicidad + 10);
         mascota.ultimoCuidado = new Date().toISOString();
-        await mascotaService.updateMascota(mascota.id, mascota);
+        await mascotaRepository.updateMascota(mascota.id, mascota);
         res.json({ mensaje: 'Mascota paseada exitosamente', mascota });
     } catch (error) {
         res.status(404).json({ error: error.message });
@@ -395,13 +395,13 @@ router.post('/mascotas/:id/pasear', async (req, res) => {
 router.post('/mascotas/:id/alimentar', async (req, res) => {
     try {
         const { cantidad = 30 } = req.body;
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         
         // Usar el método realista de alimentación
         const resultado = mascota.alimentar(cantidad);
         
         if (resultado.exito) {
-            await mascotaService.updateMascota(mascota.id, mascota);
+            await mascotaRepository.updateMascota(mascota.id, mascota);
             res.json({ 
                 mensaje: resultado.mensaje, 
                 efectos: resultado.efectos,
@@ -456,11 +456,11 @@ router.post('/mascotas/:id/alimentar', async (req, res) => {
 router.post('/mascotas/:id/enfermar', async (req, res) => {
     try {
         const { tipo } = req.body;
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         const resultado = mascota.enfermar(tipo);
         
         if (resultado.exito) {
-            await mascotaService.updateMascota(mascota.id, mascota);
+            await mascotaRepository.updateMascota(mascota.id, mascota);
             res.json({ 
                 mensaje: resultado.mensaje, 
                 mascota: mascota,
@@ -511,11 +511,11 @@ router.post('/mascotas/:id/enfermar', async (req, res) => {
 router.post('/mascotas/:id/curar', async (req, res) => {
     try {
         const { tipo } = req.body;
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         const resultado = mascota.curar(tipo);
         
         if (resultado.exito) {
-            await mascotaService.updateMascota(mascota.id, mascota);
+            await mascotaRepository.updateMascota(mascota.id, mascota);
             res.json({ 
                 mensaje: resultado.mensaje, 
                 mascota: mascota,
@@ -561,11 +561,11 @@ router.post('/mascotas/:id/curar', async (req, res) => {
 router.post('/mascotas/:id/matar', async (req, res) => {
     try {
         const { causa } = req.body;
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         const resultado = mascota.matarMascota(causa);
         
         if (resultado.exito) {
-            await mascotaService.updateMascota(mascota.id, mascota);
+            await mascotaRepository.updateMascota(mascota.id, mascota);
             res.json({ 
                 mensaje: resultado.mensaje, 
                 mascota: mascota,
@@ -601,11 +601,11 @@ router.post('/mascotas/:id/matar', async (req, res) => {
  */
 router.post('/mascotas/:id/revivir', async (req, res) => {
     try {
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         const resultado = mascota.revivirMascota();
         
         if (resultado.exito) {
-            await mascotaService.updateMascota(mascota.id, mascota);
+            await mascotaRepository.updateMascota(mascota.id, mascota);
             res.json({ 
                 mensaje: resultado.mensaje, 
                 mascota: mascota,
@@ -652,7 +652,7 @@ router.post('/mascotas/:id/revivir', async (req, res) => {
 router.post('/mascotas/:id/enfermar-aleatorio', async (req, res) => {
     try {
         const { condicion } = req.body;
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         
         let resultado;
         if (condicion) {
@@ -662,7 +662,7 @@ router.post('/mascotas/:id/enfermar-aleatorio', async (req, res) => {
         }
         
         if (resultado && resultado.exito) {
-            await mascotaService.updateMascota(mascota.id, mascota);
+            await mascotaRepository.updateMascota(mascota.id, mascota);
             res.json({ 
                 mensaje: resultado.mensaje, 
                 mascota: mascota,
@@ -713,11 +713,11 @@ router.post('/mascotas/:id/enfermar-aleatorio', async (req, res) => {
 router.post('/mascotas/:id/cepillar-pelo', async (req, res) => {
     try {
         const { intensidad = 'normal' } = req.body;
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         const resultado = mascota.cepillarPelo(intensidad);
         
         if (resultado.exito) {
-            await mascotaService.updateMascota(mascota.id, mascota);
+            await mascotaRepository.updateMascota(mascota.id, mascota);
             res.json({ 
                 mensaje: resultado.mensaje, 
                 mascota: mascota,
@@ -766,11 +766,11 @@ router.post('/mascotas/:id/cepillar-pelo', async (req, res) => {
 router.post('/mascotas/:id/aplicar-tratamiento-pelo', async (req, res) => {
     try {
         const { tratamiento } = req.body;
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         const resultado = mascota.aplicarTratamientoPelo(tratamiento);
         
         if (resultado.exito) {
-            await mascotaService.updateMascota(mascota.id, mascota);
+            await mascotaRepository.updateMascota(mascota.id, mascota);
             res.json({ 
                 mensaje: resultado.mensaje, 
                 mascota: mascota,
@@ -808,7 +808,7 @@ router.post('/mascotas/:id/aplicar-tratamiento-pelo', async (req, res) => {
  */
 router.get('/mascotas/:id/info-problemas-pelo', async (req, res) => {
     try {
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         const resultado = mascota.obtenerInfoProblemasPelo();
         
         res.json(resultado);
@@ -850,11 +850,11 @@ router.get('/mascotas/:id/info-problemas-pelo', async (req, res) => {
 router.post('/mascotas/:id/desarrollar-problema-pelo', async (req, res) => {
     try {
         const { gravedad = 'leve' } = req.body;
-        const mascota = await mascotaService.getMascotaByIdAsModel(req.params.id);
+        const mascota = await mascotaRepository.getMascotaByIdAsModel(req.params.id);
         const resultado = mascota.desarrollarProblemaPelo(gravedad);
         
         if (resultado.exito) {
-            await mascotaService.updateMascota(mascota.id, mascota);
+            await mascotaRepository.updateMascota(mascota.id, mascota);
             res.json({ 
                 mensaje: resultado.mensaje, 
                 mascota: mascota,
@@ -868,205 +868,6 @@ router.post('/mascotas/:id/desarrollar-problema-pelo', async (req, res) => {
         }
     } catch (error) {
         res.status(404).json({ error: error.message });
-    }
-});
-
-/**
- * @swagger
- * /api/mascotas/disponibles:
- *   get:
- *     summary: Obtiene todas las mascotas disponibles para adopción
- *     description: Endpoint que muestra mascotas que no han sido adoptadas
- *     tags: [Mascotas]
- *     security:
- *       - Bearer: []
- *     responses:
- *       200:
- *         description: Lista de mascotas disponibles obtenida exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 total:
- *                   type: integer
- *                 mascotas:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Mascota'
- *       500:
- *         description: Error del servidor
- */
-router.get("/mascotas/disponibles", async (req, res) => {
-    try {
-        const mascotas = await mascotaRepository.obtenerMascotasDisponibles();
-        res.json({
-            total: mascotas.length,
-            mascotas: mascotas,
-            mensaje: `Hay ${mascotas.length} mascotas disponibles para adopción`
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-/**
- * @swagger
- * /api/mascotas/adoptadas:
- *   get:
- *     summary: Obtiene todas las mascotas adoptadas
- *     description: Endpoint que muestra todas las mascotas que han sido adoptadas
- *     tags: [Mascotas]
- *     security:
- *       - Bearer: []
- *     responses:
- *       200:
- *         description: Lista de mascotas adoptadas obtenida exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 total:
- *                   type: integer
- *                 mascotas:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Mascota'
- *       500:
- *         description: Error del servidor
- */
-router.get("/mascotas/adoptadas", async (req, res) => {
-    try {
-        const mascotas = await mascotaRepository.obtenerMascotasAdoptadas();
-        res.json({
-            total: mascotas.length,
-            mascotas: mascotas,
-            mensaje: `Hay ${mascotas.length} mascotas adoptadas en total`
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-/**
- * @swagger
- * /api/mascotas/{id}/adoptar:
- *   post:
- *     summary: Adoptar una mascota disponible
- *     description: Endpoint para adoptar una mascota que no ha sido adoptada
- *     tags: [Mascotas]
- *     security:
- *       - Bearer: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: ID de la mascota a adoptar
- *     responses:
- *       200:
- *         description: Mascota adoptada exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 mensaje:
- *                   type: string
- *                 mascota:
- *                   $ref: '#/components/schemas/Mascota'
- *       400:
- *         description: Error en la adopción
- *       404:
- *         description: Mascota no encontrada
- *       500:
- *         description: Error del servidor
- */
-router.post("/mascotas/:id/adoptar", async (req, res) => {
-    try {
-        // Verificar que el usuario está autenticado
-        if (!req.userId) {
-            return res.status(401).json({ error: 'Usuario no autenticado' });
-        }
-
-        const mascota = await mascotaRepository.adoptarMascota(req.params.id, req.userId);
-        res.json({
-            mensaje: `¡Felicidades! Has adoptado a ${mascota.nombre}`,
-            mascota: mascota,
-            fechaAdopcion: mascota.fechaAdopcion
-        });
-    } catch (error) {
-        if (error.message.includes('ya ha sido adoptada')) {
-            res.status(400).json({ error: error.message });
-        } else if (error.message.includes('no encontrada')) {
-            res.status(404).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: error.message });
-        }
-    }
-});
-
-/**
- * @swagger
- * /api/mascotas/{id}/abandonar:
- *   post:
- *     summary: Abandonar una mascota adoptada
- *     description: Endpoint para abandonar una mascota que has adoptado
- *     tags: [Mascotas]
- *     security:
- *       - Bearer: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: ID de la mascota a abandonar
- *     responses:
- *       200:
- *         description: Mascota abandonada exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 mensaje:
- *                   type: string
- *                 mascota:
- *                   $ref: '#/components/schemas/Mascota'
- *       400:
- *         description: Error al abandonar
- *       403:
- *         description: No tienes permisos
- *       404:
- *         description: Mascota no encontrada
- *       500:
- *         description: Error del servidor
- */
-router.post("/mascotas/:id/abandonar", async (req, res) => {
-    try {
-        // Verificar que el usuario está autenticado
-        if (!req.userId) {
-            return res.status(401).json({ error: 'Usuario no autenticado' });
-        }
-
-        const mascota = await mascotaRepository.abandonarMascota(req.params.id, req.userId);
-        res.json({
-            mensaje: `Has abandonado a ${mascota.nombre}. Ahora está disponible para adopción.`,
-            mascota: mascota
-        });
-    } catch (error) {
-        if (error.message.includes('no tienes permisos')) {
-            res.status(403).json({ error: error.message });
-        } else if (error.message.includes('no está adoptada')) {
-            res.status(400).json({ error: error.message });
-        } else if (error.message.includes('no encontrada')) {
-            res.status(404).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: error.message });
-        }
     }
 });
 
