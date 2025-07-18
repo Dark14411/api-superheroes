@@ -25,10 +25,11 @@ const app = express()
 
 // Configuración de CORS - Permitir solicitudes desde cualquier origen
 app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false
+  origin: true, // Permitir todos los orígenes
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  credentials: true,
+  optionsSuccessStatus: 200
 }))
 
 // Solo middlewares esenciales
@@ -52,6 +53,10 @@ const swaggerOptions = {
       {
         url: 'http://localhost:3001',
         description: 'Servidor de desarrollo'
+      },
+      {
+        url: 'https://api-superheroes-ftut.onrender.com',
+        description: 'Servidor de producción (Render)'
       }
     ],
     components: {
