@@ -32,9 +32,6 @@ app.use(cors({
   optionsSuccessStatus: 200
 }))
 
-// Manejar preflight OPTIONS requests
-app.options('*', cors())
-
 // Solo middlewares esenciales
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -85,16 +82,7 @@ app.get('/swagger.json', (req, res) => {
 });
 
 // Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  swaggerOptions: {
-    persistAuthorization: true,
-    displayRequestDuration: true,
-    filter: true,
-    showExtensions: true
-  },
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'API Superhéroes - Documentación'
-}))
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 // Ruta raíz - Redirigir a Swagger
 app.get('/', (req, res) => {
