@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { generateUserApiKey } from '../utils/apiKeyGenerator.js';
 
 // Registrar nuevo usuario
 export const register = async (req, res) => {
@@ -35,14 +35,16 @@ export const register = async (req, res) => {
 
     await newUser.save();
 
-    // Generar API Key única para el usuario
-    const userApiKey = generateUserApiKey(newUser._id, newUser.username);
-    newUser.apiKey = userApiKey;
-    await newUser.save();
-
     res.status(201).json({
       success: true,
-      message: 'Usuario creado exitosamente'
+      message: 'Usuario creado exitosamente',
+      data: {
+        user: {
+          id: newUser._id,
+          username: newUser.username,
+          role: newUser.role
+        }
+      }
     });
 
   } catch (error) {
@@ -102,6 +104,13 @@ export const login = async (req, res) => {
       });
     }
 
+    // Generar JWT token
+    const token = jwt.sign(
+      { userId: user._id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+    );
+
     // Actualizar último login
     user.lastLogin = new Date();
     await user.save();
@@ -116,8 +125,8 @@ export const login = async (req, res) => {
           role: user.role,
           lastLogin: user.lastLogin
         },
-        apiKey: user.apiKey || generateUserApiKey(user._id, user.username),
-        note: 'Usa tu API Key personal en el header x-api-key'
+        token: token,
+        note: 'Usa este token en el header Authorization: Bearer <token>'
       }
     });
 
@@ -136,17 +145,16 @@ export const getProfile = async (req, res) => {
   try {
     const response = {
       success: true,
-      message: 'API Key válida',
+      message: 'Token válido',
       data: { 
         authenticated: true,
-        apiKey: req.apiKey,
         authType: req.authType,
-        note: 'Tu API Key es válida y tienes acceso a todos los endpoints'
+        note: 'Tu token JWT es válido y tienes acceso a todos los endpoints'
       }
     };
 
-    // Si es autenticación de usuario, agregar información del usuario
-    if (req.authType === 'user' && req.user) {
+    // Agregar información del usuario
+    if (req.user) {
       response.data.user = {
         id: req.user._id,
         username: req.user.username,
@@ -172,7 +180,8 @@ export const logout = async (req, res) => {
     // En una implementación más avanzada, podrías agregar el token a una blacklist
     res.json({
       success: true,
-      message: 'Logout exitoso'
+      message: 'Logout exitoso',
+      note: 'Elimina el token del lado del cliente'
     });
   } catch (error) {
     console.error('Error en logout:', error);

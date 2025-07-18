@@ -1,64 +1,76 @@
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { isUserApiKey } from '../utils/apiKeyGenerator.js';
 
-// Middleware de autenticación global con API Key (solo usuarios)
+// Middleware de autenticación global con JWT Bearer Token
 export const globalAuth = async (req, res, next) => {
   try {
-    // Obtener API Key del header
-    const apiKey = req.headers['x-api-key'] || req.headers['X-API-Key'];
+    // Obtener token del header Authorization
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-    if (!apiKey) {
+    if (!token) {
       return res.status(401).json({
         success: false,
-        message: '🔐 Acceso denegado - Se requiere API Key',
-        error: 'API Key requerida',
-        solution: 'Debes registrarte para obtener tu API Key personal',
+        message: '🔐 Acceso denegado - Se requiere token de autenticación',
+        error: 'Token requerido',
+        solution: 'Debes iniciar sesión para obtener un token JWT',
         example: {
-          header: 'x-api-key: tu_api_key_personal',
-          curl: 'curl -H "x-api-key: tu_api_key_personal" http://localhost:3001/api/heroes'
+          header: 'Authorization: Bearer tu_token_jwt',
+          curl: 'curl -H "Authorization: Bearer tu_token_jwt" http://localhost:3001/api/heroes'
         }
       });
     }
 
-    // Verificar si es API Key de usuario
-    if (isUserApiKey(apiKey)) {
-      const user = await User.findOne({ apiKey }).select('-password');
-      
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: '🔐 Acceso denegado - API Key de usuario inválida',
-          error: 'La API Key de usuario no existe o ha expirado',
-          solution: 'Registra un nuevo usuario para obtener una nueva API Key'
-        });
-      }
-
-      if (!user.isActive) {
-        return res.status(401).json({
-          success: false,
-          message: '🔐 Acceso denegado - Cuenta deshabilitada',
-          error: 'Tu cuenta ha sido deshabilitada',
-          solution: 'Contacta al administrador para reactivar tu cuenta'
-        });
-      }
-
-      req.isAuthenticated = true;
-      req.apiKey = apiKey;
-      req.authType = 'user';
-      req.user = user;
-      req.userId = user._id;
-      return next();
+    // Verificar token JWT
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Verificar que el usuario existe y está activo
+    const user = await User.findById(decoded.userId).select('-password');
+    
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: '🔐 Acceso denegado - Token inválido',
+        error: 'El usuario asociado al token no existe',
+        solution: 'Inicia sesión nuevamente para obtener un token válido'
+      });
     }
 
-    // API Key inválida
-    return res.status(401).json({
-      success: false,
-      message: '🔐 Acceso denegado - API Key inválida',
-      error: 'La API Key proporcionada no es válida',
-      solution: 'Registra un nuevo usuario para obtener una API Key válida'
-    });
+    if (!user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: '🔐 Acceso denegado - Cuenta deshabilitada',
+        error: 'Tu cuenta ha sido deshabilitada',
+        solution: 'Contacta al administrador para reactivar tu cuenta'
+      });
+    }
+
+    // Agregar información del usuario al request
+    req.isAuthenticated = true;
+    req.authType = 'jwt';
+    req.user = user;
+    req.userId = user._id;
+    next();
 
   } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        success: false,
+        message: '🔐 Acceso denegado - Token inválido',
+        error: 'El token proporcionado no es válido',
+        solution: 'Inicia sesión nuevamente para obtener un token válido'
+      });
+    }
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        success: false,
+        message: '🔐 Acceso denegado - Token expirado',
+        error: 'Tu token ha expirado',
+        solution: 'Inicia sesión nuevamente para obtener un nuevo token'
+      });
+    }
+
     console.error('Error en autenticación global:', error);
     res.status(500).json({
       success: false,
@@ -96,7 +108,6 @@ export const authRequired = (req, res, next) => {
       register: {
         body: {
           username: 'tu_usuario',
-          email: 'tu@email.com',
           password: 'TuContraseña123!'
         }
       },
@@ -105,6 +116,9 @@ export const authRequired = (req, res, next) => {
           username: 'tu_usuario',
           password: 'TuContraseña123!'
         }
+      },
+      auth_header: {
+        Authorization: 'Bearer tu_token_jwt'
       }
     }
   });

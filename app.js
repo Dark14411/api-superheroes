@@ -27,7 +27,7 @@ const app = express()
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', 'X-API-Key'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false
 }))
 
@@ -56,11 +56,11 @@ const swaggerOptions = {
     ],
     components: {
       securitySchemes: {
-        ApiKeyAuth: {
-          type: 'apiKey',
-          in: 'header',
-          name: 'x-api-key',
-          description: 'ApiKeyAuth (apiKey)'
+        BearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'JWT token obtenido al iniciar sesión'
         }
       }
     }

@@ -1,15 +1,16 @@
-# 🔐 Sistema de Autenticación con API Keys
+# 🔐 Sistema de Autenticación con JWT Bearer Tokens
 
-Este sistema implementa autenticación basada en API Keys únicas por usuario, eliminando la necesidad de tokens JWT.
+Este sistema implementa autenticación basada en JWT (JSON Web Tokens) con Bearer Token, proporcionando un sistema de autenticación seguro y estándar.
 
 ## 🚀 Características
 
-- ✅ **API Keys únicas por usuario**
+- ✅ **JWT Bearer Tokens** - Autenticación estándar de la industria
 - ✅ **Registro simplificado** (solo username y password)
 - ✅ **Autenticación global** en todos los endpoints
 - ✅ **Validaciones robustas**
 - ✅ **Documentación Swagger completa**
 - ✅ **Manejo de errores detallado**
+- ✅ **Tokens con expiración** (24h por defecto)
 
 ## 📋 Endpoints de Autenticación
 
@@ -34,9 +35,7 @@ Registra un nuevo usuario.
       "id": "64f8a1b2c3d4e5f6a7b8c9d0",
       "username": "usuario123",
       "role": "user"
-    },
-    "apiKey": "user_abc123def456_1705312800000",
-    "note": "Usa tu API Key personal en el header x-api-key"
+    }
   }
 }
 ```
@@ -64,8 +63,8 @@ Inicia sesión con un usuario existente.
       "role": "user",
       "lastLogin": "2024-01-15T10:30:00.000Z"
     },
-    "apiKey": "user_abc123def456_1705312800000",
-    "note": "Usa tu API Key personal en el header x-api-key"
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "note": "Usa este token en el header Authorization: Bearer <token>"
   }
 }
 ```
@@ -75,112 +74,82 @@ Obtiene el perfil del usuario autenticado.
 
 **Headers:**
 ```
-x-api-key: user_abc123def456_1705312800000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Respuesta exitosa (200):**
 ```json
 {
   "success": true,
-  "message": "API Key válida",
+  "message": "Token válido",
   "data": {
     "authenticated": true,
-    "apiKey": "user_abc123def456_1705312800000",
-    "authType": "user",
+    "authType": "jwt",
     "user": {
       "id": "64f8a1b2c3d4e5f6a7b8c9d0",
       "username": "usuario123",
       "role": "user",
       "lastLogin": "2024-01-15T10:30:00.000Z"
     },
-    "note": "Tu API Key es válida y tienes acceso a todos los endpoints"
+    "note": "Tu token JWT es válido y tienes acceso a todos los endpoints"
   }
 }
 ```
 
 ### 🚪 POST /api/auth/logout
-Cierra la sesión del usuario.
+Cierra la sesión del usuario (el cliente debe eliminar el token).
 
 **Headers:**
 ```
-x-api-key: user_abc123def456_1705312800000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Respuesta exitosa (200):**
 ```json
 {
   "success": true,
-  "message": "Logout exitoso"
+  "message": "Logout exitoso",
+  "note": "Elimina el token del lado del cliente"
 }
 ```
 
-## 🛡️ Validaciones
+## 🔐 Uso de Autenticación
 
-### Registro
-- **username**: 3-30 caracteres, solo letras, números y guiones bajos
-- **password**: Mínimo 3 caracteres (cualquier tipo)
+### En Postman
+1. **Registro/Login** → Obtienes un token JWT
+2. **En otros endpoints** → Usa `Authorization: Bearer <token>`
 
-### Login
-- **username**: No puede estar vacío
-- **password**: No puede estar vacío
-
-## 🔒 Seguridad
-
-### Contraseñas
-- Hasheadas con bcrypt (12 rondas de salt)
-- Nunca se devuelven en las respuestas
-- Validación mínima (3 caracteres)
-
-### API Keys
-- Únicas por usuario
-- Generadas automáticamente al registrarse
-- Formato: `user_<hash>_<timestamp>`
-- Verificación automática en todas las rutas
-
-### Validaciones
-- Sanitización de datos de entrada
-- Verificación de unicidad de username
-- Verificación de API Key en cada request
-
-## 🧪 Pruebas
-
-### Ejecutar pruebas de autenticación
-```bash
-node testAuth.js
-```
-
-### Probar endpoints con curl
-
-**Registro:**
+### En cURL
+**Registrar usuario:**
 ```bash
 curl -X POST http://localhost:3001/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "testuser",
-    "password": "123"
+    "username": "usuario123",
+    "password": "miPassword123"
   }'
 ```
 
-**Login:**
+**Iniciar sesión:**
 ```bash
 curl -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "testuser",
-    "password": "123"
+    "username": "usuario123",
+    "password": "miPassword123"
   }'
-```
-
-**Obtener perfil (con API Key):**
-```bash
-curl -X GET http://localhost:3001/api/auth/profile \
-  -H "x-api-key: TU_API_KEY_AQUI"
 ```
 
 **Acceder a endpoints protegidos:**
 ```bash
+curl -X GET http://localhost:3001/api/auth/profile \
+  -H "Authorization: Bearer TU_TOKEN_JWT_AQUI"
+```
+
+**Acceder a otros endpoints:**
+```bash
 curl -X GET http://localhost:3001/api/heroes \
-  -H "x-api-key: TU_API_KEY_AQUI"
+  -H "Authorization: Bearer TU_TOKEN_JWT_AQUI"
 ```
 
 ## 📚 Documentación Swagger
@@ -194,11 +163,9 @@ http://localhost:3001/api-docs
 
 ### Variables de entorno
 ```env
-# Configuración de API Key
-API_KEY_AUTH_ENABLED=true
-API_KEY_HEADER_NAME=X-API-Key
-API_KEY_QUERY_PARAM=apiKey
-API_KEY_REQUIRED=true
+# Configuración JWT
+JWT_SECRET=tu_jwt_secret_super_seguro_2024
+JWT_EXPIRES_IN=24h
 ```
 
 ### Middleware de autenticación
@@ -236,13 +203,23 @@ app.get('/api/heroes', (req, res) => {
 ```json
 {
   "success": false,
-  "message": "🔐 Acceso denegado - Se requiere API Key",
-  "error": "API Key requerida",
-  "solution": "Debes registrarte para obtener tu API Key personal",
+  "message": "🔐 Acceso denegado - Se requiere token de autenticación",
+  "error": "Token requerido",
+  "solution": "Debes iniciar sesión para obtener un token JWT",
   "example": {
-    "header": "x-api-key: tu_api_key_personal",
-    "curl": "curl -H \"x-api-key: tu_api_key_personal\" http://localhost:3001/api/heroes"
+    "header": "Authorization: Bearer tu_token_jwt",
+    "curl": "curl -H \"Authorization: Bearer tu_token_jwt\" http://localhost:3001/api/heroes"
   }
+}
+```
+
+**401 - Token expirado:**
+```json
+{
+  "success": false,
+  "message": "🔐 Acceso denegado - Token expirado",
+  "error": "Tu token ha expirado",
+  "solution": "Inicia sesión nuevamente para obtener un nuevo token"
 }
 ```
 
@@ -256,17 +233,9 @@ app.get('/api/heroes', (req, res) => {
 
 ## 📝 Notas Importantes
 
-1. **API Keys**: Se deben incluir en el header `x-api-key: <api_key>`
+1. **Tokens JWT**: Se deben incluir en el header `Authorization: Bearer <token>`
 2. **Contraseñas**: Nunca se almacenan en texto plano
 3. **Validaciones**: Se ejecutan antes de procesar la lógica de negocio
 4. **Roles**: Por defecto todos los usuarios tienen rol "user"
-5. **Autenticación**: Todos los endpoints requieren API Key excepto `/api/auth`
-
-## 🔄 Flujo de Autenticación
-
-1. **Registro** → Usuario se registra → Recibe API Key única
-2. **Login** → Usuario inicia sesión → Recibe API Key
-3. **Acceso** → Usuario incluye API Key en requests → Accede a rutas protegidas
-4. **Logout** → Usuario cierra sesión → API Key sigue válida
-
-¡El sistema de autenticación con API Keys está listo para usar! 🎉 
+5. **Expiración**: Los tokens expiran en 24 horas por defecto
+6. **Seguridad**: Los tokens contienen información del usuario pero están firmados 

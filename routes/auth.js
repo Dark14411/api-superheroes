@@ -116,7 +116,7 @@ router.post('/login', loginValidation, login);
  *     summary: Obtener perfil del usuario autenticado
  *     tags: [Autenticación]
  *     security:
- *       - ApiKeyAuth: []
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Perfil del usuario

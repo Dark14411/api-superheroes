@@ -12,14 +12,6 @@ services:
         value: mongodb+srv://Dark144:Cooper144467@cluster0.mlzaawc.mongodb.net/mascotas_fantasticas?retryWrites=true&w=majority&appName=Cluster0
       - key: JWT_SECRET
         value: tu_jwt_secret_super_seguro_2024_produccion
-      - key: API_KEY_AUTH_ENABLED
-        value: true
-      - key: API_KEY_HEADER_NAME
-        value: X-API-Key
-      - key: API_KEY_QUERY_PARAM
-        value: apiKey
-      - key: API_KEY_REQUIRED
-        value: true
       - key: JWT_EXPIRES_IN
         value: 24h
       - key: USECURS_ENABLED
