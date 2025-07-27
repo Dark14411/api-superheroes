@@ -23,10 +23,7 @@ import {
   Volume2,
   VolumeX
 } from "lucide-react"
-import PouStoreInterface from "../pou-store-interface"
-import SuperheroDashboard from "../superhero-dashboard"
 import EnhancedPouGame from "@/components/enhanced-pou-game"
-import SuperheroGame from "../superhero-game"
 import unifiedApiClient from "@/lib/unified-api-client"
 import AuthForm from "@/components/auth/auth-form"
 import WelcomeScreen from "@/components/welcome-screen"
@@ -385,11 +382,25 @@ export default function PouGameApp() {
   const renderContent = () => {
     switch (activeSection) {
       case "store":
-        return <PouStoreInterface />
+        return (
+          <div className="max-w-4xl mx-auto p-6">
+            <h2 className="text-2xl font-bold mb-6">🛒 Tienda</h2>
+            <Card className="p-6">
+              <p className="text-gray-600">La tienda estará disponible próximamente...</p>
+            </Card>
+          </div>
+        )
       case "game":
         return <EnhancedPouGame />
       case "heroes":
-        return <SuperheroDashboard />
+        return (
+          <div className="max-w-4xl mx-auto p-6">
+            <h2 className="text-2xl font-bold mb-6">🦸‍♂️ Superhéroes</h2>
+            <Card className="p-6">
+              <p className="text-gray-600">La gestión de superhéroes estará disponible próximamente...</p>
+            </Card>
+          </div>
+        )
       case "settings":
         return (
           <div className="max-w-2xl mx-auto p-6">
