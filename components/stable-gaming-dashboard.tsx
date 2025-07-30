@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -20,7 +20,15 @@ import {
   Target,
   Zap,
   Crown,
-  BarChart3
+  BarChart3,
+  Plus,
+  Minus,
+  Gift,
+  Sword,
+  Shield,
+  Magic,
+  Coins,
+  Gem
 } from 'lucide-react'
 
 // 🎮 INTERFACES SIMPLES
@@ -35,6 +43,9 @@ interface PlayerProfile {
   totalPlayTime: number
   avatar: string
   rank: string
+  health: number
+  energy: number
+  happiness: number
   statistics: {
     gamesPlayed: number
     gamesWon: number
@@ -46,11 +57,65 @@ interface PlayerProfile {
   }
 }
 
+interface Game {
+  id: string
+  name: string
+  description: string
+  difficulty: number
+  rewards: {
+    experience: number
+    coins: number
+    gems: number
+  }
+  isUnlocked: boolean
+  isCompleted: boolean
+}
+
+interface Pet {
+  id: string
+  name: string
+  type: string
+  rarity: string
+  health: number
+  happiness: number
+  energy: number
+  level: number
+  isAdopted: boolean
+  image: string
+}
+
+interface Hero {
+  id: string
+  name: string
+  power: number
+  defense: number
+  speed: number
+  special: string
+  level: number
+  isUnlocked: boolean
+  image: string
+}
+
+interface Achievement {
+  id: string
+  name: string
+  description: string
+  icon: string
+  isCompleted: boolean
+  progress: number
+  maxProgress: number
+  rewards: {
+    experience: number
+    coins: number
+    gems: number
+  }
+}
+
 export default function StableGamingDashboard() {
   // 🎮 ESTADOS PRINCIPALES
   const [activeTab, setActiveTab] = useState('home')
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [playerProfile] = useState<PlayerProfile>({
+  const [playerProfile, setPlayerProfile] = useState<PlayerProfile>({
     username: 'GamerLegend',
     level: 8,
     experience: 2400,
@@ -61,6 +126,9 @@ export default function StableGamingDashboard() {
     totalPlayTime: 156,
     avatar: '/avatars/1.png',
     rank: 'Elite Gamer',
+    health: 85,
+    energy: 70,
+    happiness: 90,
     statistics: {
       gamesPlayed: 45,
       gamesWon: 32,
@@ -72,14 +140,14 @@ export default function StableGamingDashboard() {
     }
   })
 
-  const [quickStats] = useState({
+  const [quickStats, setQuickStats] = useState({
     todayScore: 850,
     weeklyRank: 3,
     activeChallenges: 2,
     friendsOnline: 8
   })
 
-  const [economy] = useState({
+  const [economy, setEconomy] = useState({
     dailyIncome: 150,
     weeklySpending: 75,
     totalWealth: 25000,
@@ -90,10 +158,328 @@ export default function StableGamingDashboard() {
     }
   })
 
-  // 🎯 FUNCIONES SIMPLES
-  const handleActivityComplete = (rewards: any) => {
-    toast.success(`¡Recompensas obtenidas! +${rewards.experience || 0} XP, +${rewards.coins || 0} monedas`)
+  // 🎮 ESTADOS DINÁMICOS
+  const [games, setGames] = useState<Game[]>([
+    {
+      id: '1',
+      name: 'Aventura Espacial',
+      description: 'Explora el cosmos en esta épica aventura',
+      difficulty: 1,
+      rewards: { experience: 100, coins: 50, gems: 2 },
+      isUnlocked: true,
+      isCompleted: false
+    },
+    {
+      id: '2',
+      name: 'Batalla Épica',
+      description: 'Enfréntate a enemigos poderosos',
+      difficulty: 2,
+      rewards: { experience: 150, coins: 75, gems: 3 },
+      isUnlocked: true,
+      isCompleted: false
+    },
+    {
+      id: '3',
+      name: 'Misión Secreta',
+      description: 'Completa objetivos ocultos',
+      difficulty: 3,
+      rewards: { experience: 200, coins: 100, gems: 5 },
+      isUnlocked: false,
+      isCompleted: false
+    }
+  ])
+
+  const [pets, setPets] = useState<Pet[]>([
+    {
+      id: '1',
+      name: 'Rex',
+      type: 'Perro Cósmico',
+      rarity: 'Legendario',
+      health: 100,
+      happiness: 85,
+      energy: 90,
+      level: 5,
+      isAdopted: true,
+      image: '/pet/mascota_perro.png'
+    },
+    {
+      id: '2',
+      name: 'Luna',
+      type: 'Gato Estelar',
+      rarity: 'Épico',
+      health: 95,
+      happiness: 90,
+      energy: 85,
+      level: 3,
+      isAdopted: false,
+      image: '/pet/mascota_gato.png'
+    },
+    {
+      id: '3',
+      name: 'Spark',
+      type: 'Conejo Eléctrico',
+      rarity: 'Raro',
+      health: 80,
+      happiness: 75,
+      energy: 95,
+      level: 2,
+      isAdopted: false,
+      image: '/pet/mascota_conejo.png'
+    }
+  ])
+
+  const [heroes, setHeroes] = useState<Hero[]>([
+    {
+      id: '1',
+      name: 'Fénix de Fuego',
+      power: 95,
+      defense: 80,
+      speed: 90,
+      special: 'Resurrección',
+      level: 8,
+      isUnlocked: true,
+      image: '/heroe/superheroe_fire_phoenix.png'
+    },
+    {
+      id: '2',
+      name: 'Guardián de Hielo',
+      power: 85,
+      defense: 95,
+      speed: 75,
+      special: 'Escudo de Hielo',
+      level: 6,
+      isUnlocked: true,
+      image: '/heroe/superheroe_ice_guardian.png'
+    },
+    {
+      id: '3',
+      name: 'Rayo de Trueno',
+      power: 90,
+      defense: 70,
+      speed: 100,
+      special: 'Velocidad Suprema',
+      level: 4,
+      isUnlocked: false,
+      image: '/heroe/superheroe_thunder_bolt.png'
+    }
+  ])
+
+  const [achievements, setAchievements] = useState<Achievement[]>([
+    {
+      id: '1',
+      name: 'Primer Paso',
+      description: 'Completa tu primer juego',
+      icon: '🎮',
+      isCompleted: false,
+      progress: 0,
+      maxProgress: 1,
+      rewards: { experience: 50, coins: 25, gems: 1 }
+    },
+    {
+      id: '2',
+      name: 'Coleccionista',
+      description: 'Adopta 3 mascotas',
+      icon: '🐾',
+      isCompleted: false,
+      progress: 1,
+      maxProgress: 3,
+      rewards: { experience: 100, coins: 50, gems: 2 }
+    },
+    {
+      id: '3',
+      name: 'Héroe Legendario',
+      description: 'Desbloquea 5 héroes',
+      icon: '🦸',
+      isCompleted: false,
+      progress: 2,
+      maxProgress: 5,
+      rewards: { experience: 200, coins: 100, gems: 5 }
+    }
+  ])
+
+  // 🎯 FUNCIONES DINÁMICAS
+  const addExperience = (amount: number) => {
+    setPlayerProfile(prev => {
+      const newExp = prev.experience + amount
+      const newLevel = Math.floor(newExp / 1000) + 1
+      const expToNext = newLevel * 1000
+      
+      if (newLevel > prev.level) {
+        toast.success(`¡Nivel ${newLevel} alcanzado! +${amount} XP`)
+        return {
+          ...prev,
+          level: newLevel,
+          experience: newExp,
+          experienceToNext: expToNext
+        }
+      }
+      
+      return {
+        ...prev,
+        experience: newExp
+      }
+    })
   }
+
+  const addCoins = (amount: number) => {
+    setPlayerProfile(prev => ({
+      ...prev,
+      coins: prev.coins + amount
+    }))
+    setEconomy(prev => ({
+      ...prev,
+      currencies: {
+        ...prev.currencies,
+        coins: prev.currencies.coins + amount
+      }
+    }))
+  }
+
+  const addGems = (amount: number) => {
+    setPlayerProfile(prev => ({
+      ...prev,
+      gems: prev.gems + amount
+    }))
+    setEconomy(prev => ({
+      ...prev,
+      currencies: {
+        ...prev.currencies,
+        gems: prev.currencies.gems + amount
+      }
+    }))
+  }
+
+  const handleGamePlay = (gameId: string) => {
+    const game = games.find(g => g.id === gameId)
+    if (!game) return
+
+    // Simular juego
+    const success = Math.random() > 0.3 // 70% de éxito
+    
+    if (success) {
+      addExperience(game.rewards.experience)
+      addCoins(game.rewards.coins)
+      addGems(game.rewards.gems)
+      
+      setGames(prev => prev.map(g => 
+        g.id === gameId ? { ...g, isCompleted: true } : g
+      ))
+      
+      toast.success(`¡${game.name} completado! +${game.rewards.experience} XP, +${game.rewards.coins} monedas`)
+    } else {
+      toast.error(`¡Fallaste en ${game.name}! Inténtalo de nuevo`)
+    }
+  }
+
+  const handlePetAdopt = (petId: string) => {
+    setPets(prev => prev.map(pet => 
+      pet.id === petId ? { ...pet, isAdopted: true } : pet
+    ))
+    
+    const pet = pets.find(p => p.id === petId)
+    if (pet) {
+      addExperience(50)
+      addCoins(25)
+      toast.success(`¡${pet.name} adoptado! +50 XP, +25 monedas`)
+    }
+  }
+
+  const handlePetCare = (petId: string, action: 'feed' | 'play' | 'heal') => {
+    setPets(prev => prev.map(pet => {
+      if (pet.id !== petId) return pet
+      
+      let newPet = { ...pet }
+      
+      switch (action) {
+        case 'feed':
+          newPet.health = Math.min(100, pet.health + 20)
+          newPet.happiness = Math.min(100, pet.happiness + 10)
+          addExperience(10)
+          toast.success(`¡${pet.name} alimentado! +10 XP`)
+          break
+        case 'play':
+          newPet.happiness = Math.min(100, pet.happiness + 25)
+          newPet.energy = Math.max(0, pet.energy - 10)
+          addExperience(15)
+          toast.success(`¡Jugaste con ${pet.name}! +15 XP`)
+          break
+        case 'heal':
+          newPet.health = 100
+          addExperience(20)
+          addCoins(10)
+          toast.success(`¡${pet.name} curado! +20 XP, +10 monedas`)
+          break
+      }
+      
+      return newPet
+    }))
+  }
+
+  const handleHeroUnlock = (heroId: string) => {
+    const hero = heroes.find(h => h.id === heroId)
+    if (!hero || hero.isUnlocked) return
+    
+    if (playerProfile.coins >= 1000) {
+      setHeroes(prev => prev.map(h => 
+        h.id === heroId ? { ...h, isUnlocked: true } : h
+      ))
+      
+      addCoins(-1000)
+      addExperience(100)
+      toast.success(`¡${hero.name} desbloqueado! -1000 monedas, +100 XP`)
+    } else {
+      toast.error('No tienes suficientes monedas (necesitas 1000)')
+    }
+  }
+
+  const handleAchievementCheck = () => {
+    setAchievements(prev => prev.map(achievement => {
+      let newAchievement = { ...achievement }
+      
+      // Verificar logros
+      if (achievement.id === '1' && games.some(g => g.isCompleted)) {
+        newAchievement.progress = 1
+        if (newAchievement.progress >= newAchievement.maxProgress && !newAchievement.isCompleted) {
+          newAchievement.isCompleted = true
+          addExperience(newAchievement.rewards.experience)
+          addCoins(newAchievement.rewards.coins)
+          addGems(newAchievement.rewards.gems)
+          toast.success(`¡Logro desbloqueado: ${achievement.name}!`)
+        }
+      }
+      
+      if (achievement.id === '2') {
+        const adoptedPets = pets.filter(p => p.isAdopted).length
+        newAchievement.progress = adoptedPets
+        if (newAchievement.progress >= newAchievement.maxProgress && !newAchievement.isCompleted) {
+          newAchievement.isCompleted = true
+          addExperience(newAchievement.rewards.experience)
+          addCoins(newAchievement.rewards.coins)
+          addGems(newAchievement.rewards.gems)
+          toast.success(`¡Logro desbloqueado: ${achievement.name}!`)
+        }
+      }
+      
+      if (achievement.id === '3') {
+        const unlockedHeroes = heroes.filter(h => h.isUnlocked).length
+        newAchievement.progress = unlockedHeroes
+        if (newAchievement.progress >= newAchievement.maxProgress && !newAchievement.isCompleted) {
+          newAchievement.isCompleted = true
+          addExperience(newAchievement.rewards.experience)
+          addCoins(newAchievement.rewards.coins)
+          addGems(newAchievement.rewards.gems)
+          toast.success(`¡Logro desbloqueado: ${achievement.name}!`)
+        }
+      }
+      
+      return newAchievement
+    }))
+  }
+
+  // 🎮 EFECTO PARA VERIFICAR LOGROS
+  useEffect(() => {
+    handleAchievementCheck()
+  }, [games, pets, heroes])
 
   // 🎮 NAVEGACIÓN SIMPLIFICADA
   const navigationItems = [
@@ -101,12 +487,11 @@ export default function StableGamingDashboard() {
     { id: 'games', label: 'Juegos', icon: Gamepad2 },
     { id: 'pets', label: 'Mascotas', icon: Heart },
     { id: 'multiplayer', label: 'Multijugador', icon: Users },
-    { id: 'marketplace', label: 'Mercado', icon: ShoppingCart },
+    { id: 'marketplace', label: 'Tienda', icon: ShoppingCart },
     { id: 'achievements', label: 'Logros', icon: Trophy },
     { id: 'profile', label: 'Perfil', icon: Star }
   ]
 
-  // 🖼️ RENDERIZAR CONTENIDO ACTIVO
   const renderActiveContent = () => {
     switch (activeTab) {
       case 'home':
@@ -128,10 +513,9 @@ export default function StableGamingDashboard() {
     }
   }
 
-  // 🏠 COMPONENTE HOME SIMPLIFICADO
   const DashboardHome = () => (
     <div className="space-y-8">
-      {/* Hero Section con RGB */}
+      {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 rounded-2xl p-8 rgb-card">
         <div className="relative z-10">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
@@ -139,181 +523,149 @@ export default function StableGamingDashboard() {
               <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-4 rgb-text">
                 ¡Bienvenido, {playerProfile.username}!
               </h1>
-              <p className="text-xl text-white/80 mb-6">
-                Tu universo gaming con escenarios épicos te espera
-              </p>
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                <Badge className="bg-purple-600 text-white px-4 py-2 rgb-glow">
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-6">
+                <Badge className="rgb-glow" variant="secondary">
                   <Crown className="w-4 h-4 mr-2" />
                   {playerProfile.rank}
                 </Badge>
-                <Badge className="bg-blue-600 text-white px-4 py-2 rgb-glow">
-                  <Star className="w-4 h-4 mr-2" />
+                <Badge className="rgb-glow" variant="secondary">
+                  <Target className="w-4 h-4 mr-2" />
                   Nivel {playerProfile.level}
                 </Badge>
-                <Badge className="bg-green-600 text-white px-4 py-2 rgb-glow">
+                <Badge className="rgb-glow" variant="secondary">
                   <Trophy className="w-4 h-4 mr-2" />
                   {playerProfile.achievements} Logros
                 </Badge>
               </div>
             </div>
             
-            <div className="text-center">
-              <div className="text-6xl mb-4 rgb-pulse">🎮</div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="bg-white/10 rounded-lg p-3 rgb-border">
-                  <div className="text-2xl font-bold text-yellow-400">{quickStats.todayScore.toLocaleString()}</div>
-                  <div className="text-white/70">Score Hoy</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-3 rgb-border">
-                  <div className="text-2xl font-bold text-purple-400">#{quickStats.weeklyRank}</div>
-                  <div className="text-white/70">Rank Semanal</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-3 rgb-border">
-                  <div className="text-2xl font-bold text-blue-400">{quickStats.activeChallenges}</div>
-                  <div className="text-white/70">Desafíos</div>
-                </div>
-                <div className="bg-white/10 rounded-lg p-3 rgb-border">
-                  <div className="text-2xl font-bold text-green-400">{quickStats.friendsOnline}</div>
-                  <div className="text-white/70">Amigos Online</div>
-                </div>
+            <div className="flex items-center gap-4">
+              <div className="text-center rgb-pulse">
+                <div className="text-4xl">🎮</div>
+                <div className="text-sm text-white/80">Jugando</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quick Stats con RGB */}
+      {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="gaming-card rgb-card">
+        <Card className="rgb-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Experiencia</p>
-                <p className="text-2xl font-bold rgb-text">{playerProfile.experience.toLocaleString()}</p>
+              <div className="rgb-pulse">
+                <BarChart3 className="w-8 h-8 text-blue-400" />
               </div>
-              <div className="text-3xl rgb-pulse">⭐</div>
+              <div className="text-right">
+                <p className="text-2xl font-bold rgb-text">{playerProfile.experience}</p>
+                <p className="text-sm text-gray-500">Experiencia</p>
+              </div>
             </div>
-            <Progress value={(playerProfile.experience / playerProfile.experienceToNext) * 100} className="mt-3" />
+            <Progress value={(playerProfile.experience / playerProfile.experienceToNext) * 100} className="mt-4" />
           </CardContent>
         </Card>
 
-        <Card className="gaming-card rgb-card">
+        <Card className="rgb-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Monedas</p>
-                <p className="text-2xl font-bold rgb-text">{playerProfile.coins.toLocaleString()}</p>
+              <div className="rgb-pulse">
+                <Coins className="w-8 h-8 text-yellow-400" />
               </div>
-              <div className="text-3xl rgb-pulse">💰</div>
+              <div className="text-right">
+                <p className="text-2xl font-bold rgb-text">{playerProfile.coins}</p>
+                <p className="text-sm text-gray-500">Monedas</p>
+              </div>
             </div>
-            <div className="mt-3 text-sm text-green-600">+{economy.dailyIncome} hoy</div>
           </CardContent>
         </Card>
 
-        <Card className="gaming-card rgb-card">
+        <Card className="rgb-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Gemas</p>
+              <div className="rgb-pulse">
+                <Gem className="w-8 h-8 text-purple-400" />
+              </div>
+              <div className="text-right">
                 <p className="text-2xl font-bold rgb-text">{playerProfile.gems}</p>
+                <p className="text-sm text-gray-500">Gemas</p>
               </div>
-              <div className="text-3xl rgb-pulse">💎</div>
             </div>
-            <div className="mt-3 text-sm text-purple-600">Premium</div>
           </CardContent>
         </Card>
 
-        <Card className="gaming-card rgb-card">
+        <Card className="rgb-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Win Rate</p>
-                <p className="text-2xl font-bold rgb-text">
-                  {Math.round((playerProfile.statistics.gamesWon / playerProfile.statistics.gamesPlayed) * 100)}%
-                </p>
+              <div className="rgb-pulse">
+                <Heart className="w-8 h-8 text-red-400" />
               </div>
-              <div className="text-3xl rgb-pulse">🏆</div>
-            </div>
-            <div className="mt-3 text-sm text-blue-600">
-              {playerProfile.statistics.gamesWon}/{playerProfile.statistics.gamesPlayed} partidas
+              <div className="text-right">
+                <p className="text-2xl font-bold rgb-text">{playerProfile.health}%</p>
+                <p className="text-sm text-gray-500">Salud</p>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Accesos Rápidos con RGB */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="rgb-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 rgb-text">
-              <Zap className="w-5 h-5 text-yellow-500 rgb-pulse" />
-              Accesos Rápidos
+            <CardTitle className="rgb-text flex items-center gap-2">
+              <Zap className="w-5 h-5" />
+              Acciones Rápidas
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <Button 
-                className="gaming-button rgb-button h-20 flex flex-col gap-2"
-                onClick={() => setActiveTab('games')}
-              >
-                <Gamepad2 className="w-8 h-8" />
-                <span>Juegos</span>
-              </Button>
-              <Button 
-                className="gaming-button rgb-button h-20 flex flex-col gap-2"
-                onClick={() => setActiveTab('pets')}
-              >
-                <Heart className="w-8 h-8" />
-                <span>Mascotas</span>
-              </Button>
-              <Button 
-                className="gaming-button rgb-button h-20 flex flex-col gap-2"
-                onClick={() => setActiveTab('multiplayer')}
-              >
-                <Users className="w-8 h-8" />
-                <span>Multijugador</span>
-              </Button>
-              <Button 
-                className="gaming-button rgb-button h-20 flex flex-col gap-2"
-                onClick={() => setActiveTab('marketplace')}
-              >
-                <ShoppingCart className="w-8 h-8" />
-                <span>Mercado</span>
-              </Button>
-            </div>
+          <CardContent className="space-y-4">
+            <Button 
+              className="w-full rgb-button" 
+              onClick={() => {
+                addExperience(50)
+                addCoins(25)
+                toast.success('¡Actividad completada! +50 XP, +25 monedas')
+              }}
+            >
+              <Target className="w-4 h-4 mr-2" />
+              Actividad Diaria
+            </Button>
+            <Button 
+              className="w-full rgb-button" 
+              onClick={() => {
+                addGems(5)
+                toast.success('¡Recompensa especial! +5 gemas')
+              }}
+            >
+              <Gift className="w-4 h-4 mr-2" />
+              Recompensa Especial
+            </Button>
           </CardContent>
         </Card>
 
         <Card className="rgb-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 rgb-text">
-              <BarChart3 className="w-5 h-5 text-blue-500 rgb-pulse" />
-              Estadísticas Rápidas
+            <CardTitle className="rgb-text flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              Estadísticas
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm">Tiempo jugado:</span>
-                <span className="font-semibold rgb-text">{playerProfile.totalPlayTime}h</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Score promedio:</span>
-                <span className="font-semibold rgb-text">{playerProfile.statistics.averageScore.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Días consecutivos:</span>
-                <span className="font-semibold rgb-text">{playerProfile.statistics.consecutiveDays}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Mascota favorita:</span>
-                <span className="font-semibold text-purple-600 rgb-text">{playerProfile.statistics.favoritePet}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Héroe favorito:</span>
-                <span className="font-semibold text-orange-600 rgb-text">{playerProfile.statistics.favoriteHero}</span>
-              </div>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm">Juegos Jugados:</span>
+              <span className="rgb-text font-semibold">{playerProfile.statistics.gamesPlayed}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm">Victorias:</span>
+              <span className="rgb-text font-semibold">{playerProfile.statistics.gamesWon}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm">Puntuación Total:</span>
+              <span className="rgb-text font-semibold">{playerProfile.statistics.totalScore.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm">Días Consecutivos:</span>
+              <span className="rgb-text font-semibold">{playerProfile.statistics.consecutiveDays}</span>
             </div>
           </CardContent>
         </Card>
@@ -321,32 +673,49 @@ export default function StableGamingDashboard() {
     </div>
   )
 
-  // 🎮 PANELES SIMPLES CON RGB
   const GamesPanel = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-white rgb-text">🎮 Juegos Disponibles</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold rgb-text">🎮 Juegos Disponibles</h2>
+        <Badge className="rgb-glow" variant="secondary">
+          {games.filter(g => g.isUnlocked).length}/{games.length} Desbloqueados
+        </Badge>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { name: 'Escenarios', description: 'Juegos basados en tus GIFs', icon: '🗺️', color: 'from-purple-500 to-pink-500' },
-          { name: 'Mario Bros', description: 'Plataformas avanzadas', icon: '🍄', color: 'from-red-500 to-yellow-500' },
-          { name: 'Pou IA', description: 'Mascota virtual inteligente', icon: '🧠', color: 'from-blue-500 to-cyan-500' },
-          { name: 'Multijugador', description: 'Juega con amigos', icon: '👥', color: 'from-green-500 to-emerald-500' },
-          { name: 'Mini-Juegos', description: 'Colección de juegos rápidos', icon: '🎯', color: 'from-orange-500 to-red-500' },
-          { name: 'Aventuras', description: 'Misiones épicas', icon: '⚔️', color: 'from-indigo-500 to-purple-500' }
-        ].map((game, index) => (
-          <Card key={index} className="gaming-card rgb-card group overflow-hidden hover:shadow-xl transition-all duration-300">
-            <div className={`h-32 bg-gradient-to-br ${game.color} relative rgb-bg`}>
-              <div className="absolute inset-0 bg-black/20" />
-              <div className="absolute bottom-4 left-4 text-white">
-                <h3 className="text-xl font-bold">{game.name}</h3>
-                <p className="text-sm opacity-90">{game.description}</p>
+        {games.map(game => (
+          <Card key={game.id} className="rgb-card group cursor-pointer hover:scale-105 transition-all duration-300">
+            <CardHeader>
+              <CardTitle className="rgb-text">{game.name}</CardTitle>
+              <p className="text-sm text-gray-500">{game.description}</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Badge className="rgb-glow" variant="secondary">
+                  Nivel {game.difficulty}
+                </Badge>
+                {game.isCompleted && (
+                  <Badge className="rgb-glow bg-green-600">Completado</Badge>
+                )}
               </div>
-              <div className="absolute top-4 right-4 text-4xl rgb-pulse">{game.icon}</div>
-            </div>
-            <CardContent className="p-6">
-              <Button className="w-full gaming-button rgb-button">
-                <Gamepad2 className="w-4 h-4 mr-2" />
-                Jugar Ahora
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Recompensas:</span>
+                </div>
+                <div className="flex gap-2 text-xs">
+                  <span className="rgb-text">+{game.rewards.experience} XP</span>
+                  <span className="rgb-text">+{game.rewards.coins} 💰</span>
+                  <span className="rgb-text">+{game.rewards.gems} 💎</span>
+                </div>
+              </div>
+              
+              <Button 
+                className="w-full rgb-button"
+                disabled={!game.isUnlocked}
+                onClick={() => handleGamePlay(game.id)}
+              >
+                {game.isCompleted ? 'Jugar de Nuevo' : 'Jugar Ahora'}
               </Button>
             </CardContent>
           </Card>
@@ -357,25 +726,82 @@ export default function StableGamingDashboard() {
 
   const PetsPanel = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-white rgb-text">🐾 Sistema de Mascotas</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold rgb-text">🐾 Mis Mascotas</h2>
+        <Badge className="rgb-glow" variant="secondary">
+          {pets.filter(p => p.isAdopted).length}/{pets.length} Adoptadas
+        </Badge>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { name: 'Perro', type: 'mascota_perro.png', rarity: 'Común' },
-          { name: 'Gato', type: 'mascota_gato.png', rarity: 'Común' },
-          { name: 'Conejo', type: 'mascota_conejo.png', rarity: 'Raro' },
-          { name: 'Pájaro', type: 'mascota_pajaro.png', rarity: 'Raro' },
-          { name: 'Hamster', type: 'mascota_hamster.png', rarity: 'Épico' },
-          { name: 'Pez', type: 'mascota_pez.png', rarity: 'Épico' }
-        ].map((pet, index) => (
-          <Card key={index} className="gaming-card rgb-card">
-            <CardContent className="p-6 text-center">
-              <div className="text-6xl mb-4 rgb-pulse">🐾</div>
-              <h3 className="text-xl font-bold mb-2 rgb-text">{pet.name}</h3>
-              <Badge className="mb-4 rgb-glow">{pet.rarity}</Badge>
-              <Button className="w-full rgb-button" size="sm">
-                <Heart className="w-4 h-4 mr-2" />
-                Adoptar
-              </Button>
+        {pets.map(pet => (
+          <Card key={pet.id} className="rgb-card">
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full overflow-hidden rgb-pulse">
+                  <img src={pet.image} alt={pet.name} className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <CardTitle className="rgb-text">{pet.name}</CardTitle>
+                  <p className="text-sm text-gray-500">{pet.type}</p>
+                  <Badge className="rgb-glow mt-1" variant="secondary">
+                    {pet.rarity}
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Salud:</span>
+                  <span className="rgb-text">{pet.health}%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Felicidad:</span>
+                  <span className="rgb-text">{pet.happiness}%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Energía:</span>
+                  <span className="rgb-text">{pet.energy}%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Nivel:</span>
+                  <span className="rgb-text">{pet.level}</span>
+                </div>
+              </div>
+              
+              {pet.isAdopted ? (
+                <div className="grid grid-cols-3 gap-2">
+                  <Button 
+                    size="sm" 
+                    className="rgb-button"
+                    onClick={() => handlePetCare(pet.id, 'feed')}
+                  >
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="rgb-button"
+                    onClick={() => handlePetCare(pet.id, 'play')}
+                  >
+                    <Heart className="w-3 h-3" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="rgb-button"
+                    onClick={() => handlePetCare(pet.id, 'heal')}
+                  >
+                    <Shield className="w-3 h-3" />
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  className="w-full rgb-button"
+                  onClick={() => handlePetAdopt(pet.id)}
+                >
+                  Adoptar por 100 monedas
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -385,25 +811,26 @@ export default function StableGamingDashboard() {
 
   const MultiplayerPanel = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-white rgb-text">👥 Multijugador</h2>
+      <h2 className="text-3xl font-bold rgb-text">👥 Multijugador</h2>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="rgb-card">
           <CardHeader>
             <CardTitle className="rgb-text">Jugadores Online</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 bg-green-100 rounded rgb-border">
-                <div className="w-3 h-3 bg-green-500 rounded-full rgb-pulse"></div>
-                <span>GamerPro123 - Nivel 15</span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-2 bg-green-900/20 rounded">
+                <span>GamerPro123</span>
+                <Badge className="rgb-glow" variant="secondary">Online</Badge>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-blue-100 rounded rgb-border">
-                <div className="w-3 h-3 bg-blue-500 rounded-full rgb-pulse"></div>
-                <span>PouMaster - Nivel 12</span>
+              <div className="flex items-center justify-between p-2 bg-blue-900/20 rounded">
+                <span>ElitePlayer</span>
+                <Badge className="rgb-glow" variant="secondary">Jugando</Badge>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-purple-100 rounded rgb-border">
-                <div className="w-3 h-3 bg-purple-500 rounded-full rgb-pulse"></div>
-                <span>EliteGamer - Nivel 20</span>
+              <div className="flex items-center justify-between p-2 bg-purple-900/20 rounded">
+                <span>LegendGamer</span>
+                <Badge className="rgb-glow" variant="secondary">Online</Badge>
               </div>
             </div>
           </CardContent>
@@ -414,18 +841,18 @@ export default function StableGamingDashboard() {
             <CardTitle className="rgb-text">Salas Activas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="p-3 border rounded rgb-border">
-                <div className="font-semibold rgb-text">🏆 Torneo Elite</div>
-                <div className="text-sm text-gray-600">8/16 jugadores</div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-2 bg-yellow-900/20 rounded">
+                <span>Batalla Épica</span>
+                <Badge className="rgb-glow" variant="secondary">2/4</Badge>
               </div>
-              <div className="p-3 border rounded rgb-border">
-                <div className="font-semibold rgb-text">🎮 Casual Gaming</div>
-                <div className="text-sm text-gray-600">12/20 jugadores</div>
+              <div className="flex items-center justify-between p-2 bg-red-900/20 rounded">
+                <span>Torneo Legendario</span>
+                <Badge className="rgb-glow" variant="secondary">8/16</Badge>
               </div>
-              <div className="p-3 border rounded rgb-border">
-                <div className="font-semibold rgb-text">⚔️ Batalla Real</div>
-                <div className="text-sm text-gray-600">4/8 jugadores</div>
+              <div className="flex items-center justify-between p-2 bg-green-900/20 rounded">
+                <span>Misión Cooperativa</span>
+                <Badge className="rgb-glow" variant="secondary">3/6</Badge>
               </div>
             </div>
           </CardContent>
@@ -436,52 +863,95 @@ export default function StableGamingDashboard() {
 
   const MarketplacePanel = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-white rgb-text">💰 Marketplace</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { name: 'Corona de Diamante', price: 1000, icon: '👑', rarity: 'Legendario' },
-          { name: 'Espada Mágica', price: 500, icon: '⚔️', rarity: 'Épico' },
-          { name: 'Poción de XP', price: 100, icon: '🧪', rarity: 'Común' },
-          { name: 'Armadura Cósmica', price: 2000, icon: '🛡️', rarity: 'Legendario' },
-          { name: 'Gema de Poder', price: 300, icon: '💎', rarity: 'Raro' },
-          { name: 'Scroll de Habilidad', price: 150, icon: '📜', rarity: 'Común' }
-        ].map((item, index) => (
-          <Card key={index} className="gaming-card rgb-card">
-            <CardContent className="p-6 text-center">
-              <div className="text-4xl mb-4 rgb-pulse">{item.icon}</div>
-              <h3 className="font-bold mb-2 rgb-text">{item.name}</h3>
-              <Badge className="mb-2 rgb-glow">{item.rarity}</Badge>
-              <div className="text-lg font-bold text-green-600 mb-4 rgb-text">{item.price} 💰</div>
-              <Button className="w-full rgb-button" size="sm">
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Comprar
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+      <h2 className="text-3xl font-bold rgb-text">💰 Tienda</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="rgb-card">
+          <CardHeader>
+            <CardTitle className="rgb-text">Poción de Salud</CardTitle>
+            <p className="text-sm text-gray-500">Restaura 50% de salud</p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <span className="rgb-text font-bold">50 monedas</span>
+              <Badge className="rgb-glow" variant="secondary">Consumible</Badge>
+            </div>
+            <Button className="w-full rgb-button">Comprar</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="rgb-card">
+          <CardHeader>
+            <CardTitle className="rgb-text">Espada Legendaria</CardTitle>
+            <p className="text-sm text-gray-500">+25 de poder</p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <span className="rgb-text font-bold">500 monedas</span>
+              <Badge className="rgb-glow" variant="secondary">Equipamiento</Badge>
+            </div>
+            <Button className="w-full rgb-button">Comprar</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="rgb-card">
+          <CardHeader>
+            <CardTitle className="rgb-text">Gema de Poder</CardTitle>
+            <p className="text-sm text-gray-500">Mejora habilidades</p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <span className="rgb-text font-bold">10 gemas</span>
+              <Badge className="rgb-glow" variant="secondary">Especial</Badge>
+            </div>
+            <Button className="w-full rgb-button">Comprar</Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
 
   const AchievementsPanel = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-white rgb-text">🏆 Logros Épicos</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold rgb-text">🏆 Logros</h2>
+        <Badge className="rgb-glow" variant="secondary">
+          {achievements.filter(a => a.isCompleted).length}/{achievements.length} Completados
+        </Badge>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { name: 'Primera Victoria', description: 'Gana tu primer juego', icon: '🥇', completed: true },
-          { name: 'Explorador', description: 'Completa 3 escenarios diferentes', icon: '🗺️', completed: true },
-          { name: 'Coleccionista', description: 'Obtén 5 mascotas diferentes', icon: '🐾', completed: false },
-          { name: 'Vinculador', description: 'Crea 3 vínculos mascota-héroe', icon: '🔗', completed: true },
-          { name: 'Maestro Gaming', description: 'Juega todos los escenarios', icon: '🎮', completed: false },
-          { name: 'Economista', description: 'Acumula 50,000 monedas', icon: '💰', completed: false }
-        ].map((achievement, index) => (
-          <Card key={index} className={`gaming-card rgb-card ${achievement.completed ? 'border-yellow-500' : 'opacity-60'}`}>
-            <CardContent className="p-6 text-center">
-              <div className="text-4xl mb-4 rgb-pulse">{achievement.icon}</div>
-              <h3 className="font-bold mb-2 rgb-text">{achievement.name}</h3>
-              <p className="text-sm text-muted-foreground">{achievement.description}</p>
-              {achievement.completed && (
-                <Badge className="mt-3 bg-yellow-600 rgb-glow">Completado</Badge>
+        {achievements.map(achievement => (
+          <Card key={achievement.id} className="rgb-card">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="text-3xl">{achievement.icon}</div>
+                <div>
+                  <CardTitle className="rgb-text">{achievement.name}</CardTitle>
+                  <p className="text-sm text-gray-500">{achievement.description}</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Progreso:</span>
+                  <span className="rgb-text">{achievement.progress}/{achievement.maxProgress}</span>
+                </div>
+                <Progress value={(achievement.progress / achievement.maxProgress) * 100} />
+              </div>
+              
+              {achievement.isCompleted ? (
+                <Badge className="rgb-glow bg-green-600 w-full justify-center">Completado</Badge>
+              ) : (
+                <div className="space-y-2">
+                  <div className="text-xs text-gray-500">Recompensas:</div>
+                  <div className="flex gap-2 text-xs">
+                    <span className="rgb-text">+{achievement.rewards.experience} XP</span>
+                    <span className="rgb-text">+{achievement.rewards.coins} 💰</span>
+                    <span className="rgb-text">+{achievement.rewards.gems} 💎</span>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -492,7 +962,8 @@ export default function StableGamingDashboard() {
 
   const ProfilePanel = () => (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-white rgb-text">👤 Perfil de Jugador</h2>
+      <h2 className="text-3xl font-bold rgb-text">👤 Perfil</h2>
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="rgb-card">
           <CardHeader>
@@ -500,30 +971,27 @@ export default function StableGamingDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-2xl rgb-pulse">
-                🎮
+              <div className="w-16 h-16 rounded-full overflow-hidden rgb-pulse">
+                <img src={playerProfile.avatar} alt="Avatar" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h3 className="text-xl font-bold rgb-text">{playerProfile.username}</h3>
-                <p className="text-muted-foreground">{playerProfile.rank}</p>
+                <h3 className="rgb-text font-bold">{playerProfile.username}</h3>
+                <p className="text-sm text-gray-500">{playerProfile.rank}</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Nivel:</span>
-                <div className="font-semibold rgb-text">{playerProfile.level}</div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm">Nivel:</span>
+                <span className="rgb-text font-semibold">{playerProfile.level}</span>
               </div>
-              <div>
-                <span className="text-muted-foreground">Experiencia:</span>
-                <div className="font-semibold rgb-text">{playerProfile.experience.toLocaleString()}</div>
+              <div className="flex justify-between">
+                <span className="text-sm">Experiencia:</span>
+                <span className="rgb-text font-semibold">{playerProfile.experience}/{playerProfile.experienceToNext}</span>
               </div>
-              <div>
-                <span className="text-muted-foreground">Logros:</span>
-                <div className="font-semibold rgb-text">{playerProfile.achievements}</div>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Tiempo:</span>
-                <div className="font-semibold rgb-text">{playerProfile.totalPlayTime}h</div>
+              <div className="flex justify-between">
+                <span className="text-sm">Tiempo Total:</span>
+                <span className="rgb-text font-semibold">{playerProfile.totalPlayTime}h</span>
               </div>
             </div>
           </CardContent>
@@ -531,25 +999,25 @@ export default function StableGamingDashboard() {
 
         <Card className="rgb-card">
           <CardHeader>
-            <CardTitle className="rgb-text">Estadísticas de Juego</CardTitle>
+            <CardTitle className="rgb-text">Estadísticas</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
               <div className="flex justify-between">
-                <span>Partidas jugadas:</span>
-                <span className="font-semibold rgb-text">{playerProfile.statistics.gamesPlayed}</span>
+                <span className="text-sm">Juegos Jugados:</span>
+                <span className="rgb-text font-semibold">{playerProfile.statistics.gamesPlayed}</span>
               </div>
               <div className="flex justify-between">
-                <span>Partidas ganadas:</span>
-                <span className="font-semibold text-green-600 rgb-text">{playerProfile.statistics.gamesWon}</span>
+                <span className="text-sm">Victorias:</span>
+                <span className="rgb-text font-semibold">{playerProfile.statistics.gamesWon}</span>
               </div>
               <div className="flex justify-between">
-                <span>Score total:</span>
-                <span className="font-semibold rgb-text">{playerProfile.statistics.totalScore.toLocaleString()}</span>
+                <span className="text-sm">Puntuación Total:</span>
+                <span className="rgb-text font-semibold">{playerProfile.statistics.totalScore.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span>Score promedio:</span>
-                <span className="font-semibold rgb-text">{playerProfile.statistics.averageScore.toLocaleString()}</span>
+                <span className="text-sm">Promedio:</span>
+                <span className="rgb-text font-semibold">{playerProfile.statistics.averageScore}</span>
               </div>
             </div>
           </CardContent>
@@ -559,50 +1027,77 @@ export default function StableGamingDashboard() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-blue-950 to-indigo-950">
-      <div className="flex">
-        {/* Sidebar con RGB */}
-        <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 bg-black/20 backdrop-blur-lg border-r border-white/10 min-h-screen rgb-border`}>
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-8">
-              {sidebarOpen && (
-                <div className="flex items-center gap-2">
-                  <div className="text-2xl rgb-pulse">🎮</div>
-                  <span className="font-bold text-white rgb-text">Gaming Hub</span>
-                </div>
-              )}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} rgb-border`}>
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div className="flex items-center gap-3 p-6 border-b border-gray-700">
+            <div className="text-2xl rgb-pulse">🎮</div>
+            <span className="text-xl font-bold rgb-text">Gaming Hub</span>
+          </div>
+          
+          {/* Navigation */}
+          <nav className="flex-1 p-4 space-y-2">
+            {navigationItems.map((item) => (
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="text-white hover:bg-white/10 rgb-button"
+                key={item.id}
+                variant={activeTab === item.id ? 'default' : 'ghost'}
+                className={`w-full justify-start rgb-button ${activeTab === item.id ? 'bg-purple-600' : ''}`}
+                onClick={() => setActiveTab(item.id)}
               >
-                {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                <item.icon className="w-4 h-4 mr-3" />
+                {item.label}
               </Button>
-            </div>
-
-            <nav className="space-y-2">
-              {navigationItems.map((item) => (
-                <Button
-                  key={item.id}
-                  variant={activeTab === item.id ? 'secondary' : 'ghost'}
-                  className={`w-full justify-start text-white hover:bg-white/10 rgb-button ${
-                    activeTab === item.id ? 'bg-purple-600 hover:bg-purple-700' : ''
-                  }`}
-                  onClick={() => setActiveTab(item.id)}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {sidebarOpen && <span className="ml-2">{item.label}</span>}
-                </Button>
-              ))}
-            </nav>
+            ))}
+          </nav>
+          
+          {/* Toggle Button */}
+          <div className="p-4 border-t border-gray-700">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full rgb-button"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="w-4 h-4 mr-2" />
+              Cerrar
+            </Button>
           </div>
         </div>
+      </div>
 
-        {/* Main Content */}
-        <div className="flex-1 p-6">
+      {/* Main Content */}
+      <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
+        {/* Header */}
+        <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700 p-4">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rgb-button"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+            
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Coins className="w-5 h-5 text-yellow-400" />
+                <span className="rgb-text font-semibold">{playerProfile.coins}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Gem className="w-5 h-5 text-purple-400" />
+                <span className="rgb-text font-semibold">{playerProfile.gems}</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="p-6">
           {renderActiveContent()}
-        </div>
+        </main>
       </div>
     </div>
   )
