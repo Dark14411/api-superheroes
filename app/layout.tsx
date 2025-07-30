@@ -4,9 +4,29 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Mi Pou Virtual - Tu Mascota Virtual',
+  description: 'Tu mascota virtual personalizable con mini-juegos, sistema de logros y mucho más. ¡Juega y cuida de tu Pou!',
+  generator: 'Next.js',
+  manifest: '/manifest.json',
+  themeColor: '#f59e0b',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Mi Pou Virtual'
+  },
+  formatDetection: {
+    telephone: false
+  },
+  icons: {
+    icon: [
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' }
+    ],
+    apple: [
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' }
+    ]
+  }
 }
 
 export default function RootLayout({

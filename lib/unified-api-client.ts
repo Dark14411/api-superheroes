@@ -1,11 +1,33 @@
 // Cliente API unificado para toda la aplicación Pou
 const API_BASE_URL = "https://api-superheroes-hkbl.onrender.com/api"
 
-// Helper functions for safe localStorage usage
+// Helper functions for safe localStorage usage with error handling
 const safeLocalStorage = {
-  getItem: (key: string) => typeof window !== 'undefined' ? localStorage.getItem(key) : null,
-  setItem: (key: string, value: string) => typeof window !== 'undefined' && localStorage.setItem(key, value),
-  removeItem: (key: string) => typeof window !== 'undefined' && localStorage.removeItem(key)
+  getItem: (key: string): string | null => {
+    if (typeof window === 'undefined') return null
+    try {
+      return localStorage.getItem(key)
+    } catch (error) {
+      console.warn(`Error reading localStorage key "${key}":`, error)
+      return null
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    if (typeof window === 'undefined') return
+    try {
+      localStorage.setItem(key, value)
+    } catch (error) {
+      console.warn(`Error setting localStorage key "${key}":`, error)
+    }
+  },
+  removeItem: (key: string): void => {
+    if (typeof window === 'undefined') return
+    try {
+      localStorage.removeItem(key)
+    } catch (error) {
+      console.warn(`Error removing localStorage key "${key}":`, error)
+    }
+  }
 }
 
 // Tipos para la API

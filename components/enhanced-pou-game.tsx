@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Heart,
@@ -21,22 +21,47 @@ import {
   Volume2,
   VolumeX,
   RotateCcw,
+  ShoppingCart,
 } from "lucide-react"
+import GameStore from "./game-store"
+import MiniGames from "./mini-games"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import unifiedApiClient, { PouStats } from "@/lib/unified-api-client"
 
 // Tipos para efectos visuales
 interface FloatingEffect {
   id: number
   x: number
   y: number
-  type: "heart" | "star" | "coin" | "sparkle" | "level_up"
+  type: "heart" | "star" | "coin" | "sparkle" | "level_up" | "food" | "toy" | "magic"
   value?: string
+}
+
+interface Particle {
+  id: number
+  x: number
+  y: number
+  vx: number
+  vy: number
+  life: number
+  type: "sparkle" | "bubble" | "dust"
+  color: string
+}
+
+// Tipos para Pou
+interface PouStats {
+  health: number
+  happiness: number
+  energy: number
+  hunger: number
+  cleanliness: number
+  level: number
+  experience: number
+  mood: string
 }
 
 // Componente del personaje Pou interactivo
@@ -45,11 +70,17 @@ const InteractivePou = ({
   isAnimating = false,
   animation = "idle",
   onClick,
+  onMouseMove,
+  onMouseEnter,
+  onMouseLeave,
 }: {
   stats: PouStats
   isAnimating?: boolean
-  animation?: "idle" | "eating" | "playing" | "sleeping" | "bathing" | "happy" | "sad"
+  animation?: "idle" | "eating" | "playing" | "sleeping" | "bathing" | "happy" | "sad" | "dancing" | "surprised"
   onClick?: () => void
+  onMouseMove?: (e: React.MouseEvent) => void
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
 }) => {
   const getMoodColor = () => {
     switch (stats.mood) {
@@ -74,6 +105,17 @@ const InteractivePou = ({
         return { y: [0, -10, 0], scale: [1, 1.1, 1] }
       case "sad":
         return { y: [0, 2, 0] }
+      case "dancing":
+        return { 
+          rotate: [0, 15, -15, 0], 
+          scale: [1, 1.15, 1],
+          y: [0, -8, 0]
+        }
+      case "surprised":
+        return { 
+          scale: [1, 1.2, 1],
+          rotate: [0, 5, -5, 0]
+        }
       default:
         return isAnimating ? { scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] } : {}
     }
@@ -95,6 +137,9 @@ const InteractivePou = ({
       animate={getAnimation()}
       transition={{ duration: 1, repeat: animation !== "idle" ? 3 : (isAnimating ? Number.POSITIVE_INFINITY : 0) }}
       onClick={onClick}
+      onMouseMove={onMouseMove}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
@@ -223,12 +268,43 @@ const InteractivePou = ({
         {stats.level}
       </div>
 
-      {/* Indicador de estado de ánimo */}
-      <div className="absolute -top-2 -right-2 text-2xl">
-        {stats.mood === "happy" ? "😊" : 
-         stats.mood === "content" ? "😌" :
-         stats.mood === "sad" ? "😢" : "😐"}
-      </div>
+               {/* Indicador de estado de ánimo */}
+         <div className="absolute -top-2 -right-2 text-2xl">
+           {stats.mood === "happy" ? "😊" : 
+            stats.mood === "content" ? "😌" :
+            stats.mood === "sad" ? "😢" : "😐"}
+         </div>
+
+         {/* Indicadores de estado */}
+         {stats.hunger < 30 && (
+           <motion.div
+             className="absolute -top-2 -left-2 text-xl"
+             animate={{ scale: [1, 1.2, 1] }}
+             transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
+           >
+             🍽️
+           </motion.div>
+         )}
+         
+         {stats.energy < 20 && (
+           <motion.div
+             className="absolute -bottom-2 -right-2 text-xl"
+             animate={{ scale: [1, 1.2, 1] }}
+             transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: 0.5 }}
+           >
+             ⚡
+           </motion.div>
+         )}
+         
+         {stats.cleanliness < 30 && (
+           <motion.div
+             className="absolute top-2 -left-2 text-lg"
+             animate={{ scale: [1, 1.2, 1] }}
+             transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: 1 }}
+           >
+             🧼
+           </motion.div>
+         )}
     </motion.div>
   )
 }
@@ -248,6 +324,14 @@ const StatBar = ({
   icon: any 
 }) => {
   const percentage = (value / maxValue) * 100
+  
+  // Determinar el color de la barra basado en el valor
+  const getBarColor = () => {
+    if (value < 20) return "bg-red-500"
+    if (value < 40) return "bg-orange-500"
+    if (value < 60) return "bg-yellow-500"
+    return "bg-green-500"
+  }
 
   return (
     <div className="space-y-2">
@@ -255,10 +339,20 @@ const StatBar = ({
         <div className="flex items-center gap-2">
           <Icon className={`w-4 h-4 ${color}`} />
           <span className="text-sm font-medium text-gray-700">{label}</span>
+          {value < 30 && (
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 0.5, repeat: Number.POSITIVE_INFINITY }}
+            >
+              ⚠️
+            </motion.div>
+          )}
         </div>
-        <span className="text-sm font-bold text-gray-600">{value}%</span>
+        <span className={`text-sm font-bold ${value < 30 ? 'text-red-600' : 'text-gray-600'}`}>
+          {value}%
+        </span>
       </div>
-      <Progress value={percentage} className="h-2" />
+      <Progress value={percentage} className={`h-2 ${getBarColor()}`} />
     </div>
   )
 }
@@ -279,27 +373,86 @@ export default function EnhancedPouGame() {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState("")
   const [floatingEffects, setFloatingEffects] = useState<FloatingEffect[]>([])
+  const [particles, setParticles] = useState<Particle[]>([])
   const [currentAnimation, setCurrentAnimation] = useState<string>("idle")
-  const [coins, setCoins] = useState(0)
+  const [coins, setCoins] = useState(100)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [showStatsDialog, setShowStatsDialog] = useState(false)
+  const [clickCount, setClickCount] = useState(0)
+  const [lastClickTime, setLastClickTime] = useState(0)
+  const [isHovering, setIsHovering] = useState(false)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  
+  // Estado para tienda y personalización
+  const [showStore, setShowStore] = useState(false)
+  const [showMiniGames, setShowMiniGames] = useState(false)
+  const [customization, setCustomization] = useState({
+    bodyColor: "default",
+    eyeColor: "default",
+    accessory: null,
+    crown: null,
+    specialEffect: null
+  })
+  const [inventory, setInventory] = useState<any[]>([])
 
-  // Cargar estadísticas al iniciar
+  // Sistema de degradación automática más realista y efectos de exceso
   useEffect(() => {
-    loadPouStats()
-  }, [])
+    const interval = setInterval(() => {
+      setParticles(prev => prev.filter(particle => particle.life > 0))
+      
+      // Sistema de degradación más agresivo y realista
+      setPouStats(prev => {
+        const newStats = { ...prev }
+        
+        // Reducir hambre más rápido (cada 5 segundos)
+        newStats.hunger = Math.max(0, prev.hunger - 3)
+        
+        // Reducir energía gradualmente
+        newStats.energy = Math.max(0, prev.energy - 2)
+        
+        // Reducir limpieza gradualmente
+        newStats.cleanliness = Math.max(0, prev.cleanliness - 2)
+        
+        // Efectos de exceso - si las estadísticas están muy altas, pueden causar problemas
+        if (prev.hunger > 95) {
+          newStats.health = Math.max(0, prev.health - 2) // Demasiada comida enferma
+          newStats.happiness = Math.max(0, prev.happiness - 3) // Se siente mal
+        }
+        
+        if (prev.energy > 95) {
+          newStats.happiness = Math.max(0, prev.happiness - 2) // Demasiada energía = hiperactivo
+        }
+        
+        if (prev.cleanliness > 95) {
+          newStats.happiness = Math.max(0, prev.happiness - 1) // Demasiada limpieza = obsesivo
+        }
+        
+        // Reducir felicidad si las necesidades básicas están bajas
+        if (prev.hunger < 30 || prev.energy < 20 || prev.cleanliness < 30) {
+          newStats.happiness = Math.max(0, prev.happiness - 1)
+        }
+        
+        // Reducir salud si las necesidades están muy bajas
+        if (prev.hunger < 15 || prev.energy < 10 || prev.cleanliness < 15) {
+          newStats.health = Math.max(0, prev.health - 1)
+        }
+        
+        // Actualizar estado de ánimo basado en las estadísticas
+        const avgStats = (newStats.hunger + newStats.energy + newStats.cleanliness + newStats.happiness) / 4
+        if (avgStats > 80 && newStats.hunger < 90 && newStats.energy < 90 && newStats.cleanliness < 90) {
+          newStats.mood = "happy"
+        } else if (avgStats > 50) {
+          newStats.mood = "content"
+        } else {
+          newStats.mood = "sad"
+        }
+        
+        return newStats
+      })
+    }, 5000) // Cada 5 segundos para que sea más visible
 
-  const loadPouStats = async () => {
-    setIsLoading(true)
-    try {
-      const stats = await unifiedApiClient.getPouStats()
-      setPouStats(stats)
-    } catch (error) {
-      console.error("Error loading Pou stats:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    return () => clearInterval(interval)
+  }, [])
 
   // Crear efecto flotante
   const createFloatingEffect = (type: FloatingEffect["type"], value?: string) => {
@@ -319,23 +472,90 @@ export default function EnhancedPouGame() {
     }, 3000)
   }
 
+  // Crear partículas
+  const createParticle = (x: number, y: number, type: Particle["type"] = "sparkle") => {
+    const newParticle: Particle = {
+      id: Date.now() + Math.random(),
+      x,
+      y,
+      vx: (Math.random() - 0.5) * 4,
+      vy: (Math.random() - 0.5) * 4 - 2,
+      life: 1,
+      type,
+      color: type === "sparkle" ? "#FFD700" : type === "bubble" ? "#87CEEB" : "#D3D3D3"
+    }
+    setParticles(prev => [...prev, newParticle])
+  }
+
+  // Manejar click en Pou
+  const handlePouClick = () => {
+    const now = Date.now()
+    setClickCount(prev => prev + 1)
+    setLastClickTime(now)
+
+    // Efectos visuales al hacer click
+    createFloatingEffect("heart", "+1")
+    createParticle(mousePosition.x, mousePosition.y, "sparkle")
+    
+    // Animación de sorpresa
+    setCurrentAnimation("surprised")
+    setTimeout(() => setCurrentAnimation("idle"), 500)
+
+    // Combo de clicks
+    if (now - lastClickTime < 1000) {
+      setCurrentAnimation("dancing")
+      setTimeout(() => setCurrentAnimation("idle"), 1000)
+      createFloatingEffect("star", "Combo!")
+      setCoins(prev => prev + 5)
+    }
+
+    // Mensaje aleatorio
+    const messages = [
+      "¡Hola!", "¡Me encantas!", "¡Más!", "¡Divertido!", "¡Genial!"
+    ]
+    setMessage(messages[Math.floor(Math.random() * messages.length)])
+    setTimeout(() => setMessage(""), 2000)
+  }
+
+  // Manejar movimiento del mouse
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    })
+  }
+
+  // Manejar hover
+  const handleMouseEnter = () => {
+    setIsHovering(true)
+    setCurrentAnimation("happy")
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovering(false)
+    setCurrentAnimation("idle")
+  }
+
   // Acción: Alimentar Pou
   const feedPou = async () => {
     setIsLoading(true)
     setCurrentAnimation("eating")
     
     try {
-      const result = await unifiedApiClient.feedPou()
+      // Simular API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
       
-      if (result.success) {
-        setPouStats(result.stats)
-        setMessage(result.message)
-        createFloatingEffect("heart")
-        createFloatingEffect("coin", "+10")
-        setCoins(prev => prev + 10)
-      } else {
-        setMessage(result.message)
-      }
+      setPouStats(prev => ({
+        ...prev,
+        hunger: Math.min(100, prev.hunger + 25), // AUMENTAR hambre (satisfacción) - menos poderoso
+        happiness: Math.min(100, prev.happiness + 8), // Menos felicidad
+        health: Math.min(100, prev.health + 3) // Menos salud
+      }))
+      setMessage("¡Pou está comiendo feliz!")
+      createFloatingEffect("heart")
+      createFloatingEffect("coin", "+8")
+      setCoins(prev => prev + 8)
     } catch (error) {
       setMessage("Error al alimentar a Pou")
     } finally {
@@ -353,17 +573,20 @@ export default function EnhancedPouGame() {
     setCurrentAnimation("playing")
     
     try {
-      const result = await unifiedApiClient.playWithPou()
+      // Simular API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
       
-      if (result.success) {
-        setPouStats(result.stats)
-        setMessage(result.message)
-        createFloatingEffect("star")
-        createFloatingEffect("coin", "+15")
-        setCoins(prev => prev + 15)
-      } else {
-        setMessage(result.message)
-      }
+      setPouStats(prev => ({
+        ...prev,
+        energy: Math.max(0, prev.energy - 20), // Más energía gastada por jugar
+        happiness: Math.min(100, prev.happiness + 15), // Menos felicidad
+        health: Math.min(100, prev.health + 2), // Menos salud
+        hunger: Math.max(0, prev.hunger - 8) // Más hambre por el ejercicio
+      }))
+      setMessage("¡Pou está jugando!")
+      createFloatingEffect("star")
+      createFloatingEffect("coin", "+12")
+      setCoins(prev => prev + 12)
     } catch (error) {
       setMessage("Error al jugar con Pou")
     } finally {
@@ -381,17 +604,19 @@ export default function EnhancedPouGame() {
     setCurrentAnimation("happy")
     
     try {
-      const result = await unifiedApiClient.healPou()
+      // Simular API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
       
-      if (result.success) {
-        setPouStats(result.stats)
-        setMessage(result.message)
-        createFloatingEffect("sparkle")
-        createFloatingEffect("coin", "+5")
-        setCoins(prev => prev + 5)
-      } else {
-        setMessage(result.message)
-      }
+      setPouStats(prev => ({
+        ...prev,
+        health: Math.min(100, prev.health + 20), // Menos salud recuperada
+        happiness: Math.min(100, prev.happiness + 4), // Menos felicidad
+        energy: Math.max(0, prev.energy - 3) // Gastar un poco de energía
+      }))
+      setMessage("¡Pou se siente mejor!")
+      createFloatingEffect("sparkle")
+      createFloatingEffect("coin", "+4")
+      setCoins(prev => prev + 4)
     } catch (error) {
       setMessage("Error al curar a Pou")
     } finally {
@@ -408,12 +633,13 @@ export default function EnhancedPouGame() {
     setCurrentAnimation("bathing")
     setPouStats(prev => ({
       ...prev,
-      cleanliness: Math.min(100, prev.cleanliness + 20),
-      happiness: Math.min(100, prev.happiness + 5)
+      cleanliness: Math.min(100, prev.cleanliness + 18), // Menos limpieza
+      happiness: Math.min(100, prev.happiness + 6), // Un poco más de felicidad
+      energy: Math.max(0, prev.energy - 5) // Gastar un poco de energía
     }))
     setMessage("¡Pou está limpio y brillante!")
     createFloatingEffect("sparkle")
-    setCoins(prev => prev + 8)
+    setCoins(prev => prev + 6)
     
     setTimeout(() => {
       setCurrentAnimation("idle")
@@ -426,17 +652,61 @@ export default function EnhancedPouGame() {
     setCurrentAnimation("sleeping")
     setPouStats(prev => ({
       ...prev,
-      energy: Math.min(100, prev.energy + 30),
-      health: Math.min(100, prev.health + 10)
+      energy: Math.min(100, prev.energy + 25), // Menos energía recuperada
+      health: Math.min(100, prev.health + 8), // Menos salud recuperada
+      hunger: Math.max(0, prev.hunger - 3) // Un poco de hambre por dormir
     }))
     setMessage("¡Pou está descansando!")
     createFloatingEffect("star")
-    setCoins(prev => prev + 12)
+    setCoins(prev => prev + 10)
     
     setTimeout(() => {
       setCurrentAnimation("idle")
       setMessage("")
     }, 4000)
+  }
+
+  // Funciones para tienda y mini-juegos
+  const handlePurchase = (item: any) => {
+    setCoins(prev => prev - item.price)
+    setInventory(prev => [...prev, item])
+    setMessage(`¡Compraste ${item.name}!`)
+    
+    // Si es comida o juguete, aplicarlo automáticamente
+    if (item.category === "food" && item.effect) {
+      setPouStats(prev => ({
+        ...prev,
+        hunger: Math.min(100, prev.hunger + (item.effect.hunger || 0)),
+        happiness: Math.min(100, prev.happiness + (item.effect.happiness || 0)),
+        health: Math.min(100, prev.health + (item.effect.health || 0)),
+        energy: Math.min(100, prev.energy + (item.effect.energy || 0)),
+        cleanliness: Math.min(100, prev.cleanliness + (item.effect.cleanliness || 0))
+      }))
+    }
+  }
+
+  const handleCustomize = (newCustomization: any) => {
+    setCustomization(newCustomization)
+    setMessage("¡Personalización aplicada!")
+  }
+
+  const handleGameComplete = (rewards: any) => {
+    setCoins(prev => prev + rewards.coins)
+    setPouStats(prev => ({
+      ...prev,
+      happiness: Math.min(100, prev.happiness + (rewards.happiness || 0)),
+      energy: Math.max(0, prev.energy + (rewards.energy || 0))
+    }))
+    setMessage(`¡Ganaste ${rewards.coins} monedas!`)
+  }
+
+  const handleGameFail = (penalties: any) => {
+    setPouStats(prev => ({
+      ...prev,
+      happiness: Math.max(0, prev.happiness + (penalties.happiness || 0)),
+      energy: Math.max(0, prev.energy + (penalties.energy || 0))
+    }))
+    setMessage("¡Mejor suerte la próxima vez!")
   }
 
   return (
@@ -482,10 +752,10 @@ export default function EnhancedPouGame() {
             stats={pouStats}
             isAnimating={currentAnimation === "idle"}
             animation={currentAnimation as any}
-            onClick={() => {
-              createFloatingEffect("heart")
-              setCoins(prev => prev + 1)
-            }}
+            onClick={handlePouClick}
+            onMouseMove={handleMouseMove}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           />
 
           {/* Efectos flotantes */}
@@ -505,9 +775,59 @@ export default function EnhancedPouGame() {
                 {effect.type === "coin" && (effect.value ? `${effect.value} 💰` : "💰")}
                 {effect.type === "sparkle" && "✨"}
                 {effect.type === "level_up" && "🎉"}
+                {effect.type === "food" && "🍎"}
+                {effect.type === "toy" && "🎾"}
+                {effect.type === "magic" && "🔮"}
               </motion.div>
             ))}
           </AnimatePresence>
+
+          {/* Sistema de partículas */}
+          <AnimatePresence>
+            {particles.map((particle) => (
+              <motion.div
+                key={particle.id}
+                className="absolute pointer-events-none"
+                style={{ 
+                  left: particle.x, 
+                  top: particle.y,
+                  color: particle.color
+                }}
+                initial={{ 
+                  opacity: 1, 
+                  scale: 1,
+                  x: 0,
+                  y: 0
+                }}
+                animate={{ 
+                  opacity: 0,
+                  scale: 0,
+                  x: particle.vx * 50,
+                  y: particle.vy * 50
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 2 }}
+              >
+                {particle.type === "sparkle" && "✨"}
+                {particle.type === "bubble" && "💧"}
+                {particle.type === "dust" && "✨"}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {/* Contador de clicks */}
+          {clickCount > 0 && (
+            <motion.div
+              className="absolute top-4 right-4 bg-white/90 rounded-full px-3 py-1 shadow-md"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+            >
+              <span className="text-sm font-bold text-purple-600">
+                Clicks: {clickCount}
+              </span>
+            </motion.div>
+          )}
 
           {/* Mensaje de estado */}
           {message && (
@@ -523,8 +843,8 @@ export default function EnhancedPouGame() {
         </div>
       </Card>
 
-      {/* Botones de acción */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+             {/* Botones de acción */}
+       <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
         <Button
           onClick={feedPou}
           disabled={isLoading}
@@ -599,7 +919,49 @@ export default function EnhancedPouGame() {
             <div className="text-sm">Curar</div>
           </div>
         </Button>
-      </div>
+
+                 <Button
+           onClick={() => {
+             setCurrentAnimation("dancing")
+             createFloatingEffect("magic", "¡Sorpresa!")
+             createFloatingEffect("star", "✨")
+             createFloatingEffect("star", "✨")
+             createFloatingEffect("star", "✨")
+             setCoins(prev => prev + 20)
+             setMessage("¡Sorpresa mágica! +20 monedas")
+             setTimeout(() => {
+               setCurrentAnimation("idle")
+               setMessage("")
+             }, 2000)
+           }}
+           className="h-20 bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+         >
+           <div className="text-center">
+             <Sparkles className="w-6 h-6 mx-auto mb-1" />
+             <div className="text-sm">Sorpresa</div>
+           </div>
+         </Button>
+
+         <Button
+           onClick={() => setShowStore(true)}
+           className="h-20 bg-gradient-to-br from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700"
+         >
+           <div className="text-center">
+             <ShoppingCart className="w-6 h-6 mx-auto mb-1" />
+             <div className="text-sm">Tienda</div>
+           </div>
+         </Button>
+
+         <Button
+           onClick={() => setShowMiniGames(true)}
+           className="h-20 bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
+         >
+           <div className="text-center">
+             <Gamepad2 className="w-6 h-6 mx-auto mb-1" />
+             <div className="text-sm">Juegos</div>
+           </div>
+         </Button>
+       </div>
 
       {/* Barras de estadísticas detalladas */}
       <Card className="p-6">
@@ -613,14 +975,28 @@ export default function EnhancedPouGame() {
             >
               {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={loadPouStats}
-              disabled={isLoading}
-            >
-              <RotateCcw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
-            </Button>
+                         <Button
+               variant="outline"
+               size="icon"
+               onClick={() => {
+                 setPouStats({
+                   health: 85,
+                   happiness: 90,
+                   energy: 75,
+                   hunger: 60,
+                   cleanliness: 80,
+                   level: 1,
+                   experience: 0,
+                   mood: "happy",
+                 })
+                 setCoins(100)
+                 setClickCount(0)
+                 setMessage("¡Estadísticas reseteadas!")
+               }}
+               disabled={isLoading}
+             >
+               <RotateCcw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+             </Button>
           </div>
         </div>
         
@@ -683,8 +1059,57 @@ export default function EnhancedPouGame() {
                                pouStats.mood === "sad" ? "triste" : "normal"}
             </p>
           </div>
-        </div>
-      </Card>
-    </div>
-  )
-} 
+                 </div>
+       </Card>
+
+       {/* Modal de Tienda */}
+       {showStore && (
+         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+           <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+             <div className="p-4 border-b flex justify-between items-center">
+               <h2 className="text-2xl font-bold">Tienda del Juego</h2>
+               <Button
+                 variant="outline"
+                 onClick={() => setShowStore(false)}
+               >
+                 ✕
+               </Button>
+             </div>
+             <div className="p-4">
+               <GameStore
+                 coins={coins}
+                 onPurchase={handlePurchase}
+                 onCustomize={handleCustomize}
+                 currentCustomization={customization}
+               />
+             </div>
+           </div>
+         </div>
+       )}
+
+       {/* Modal de Mini-Juegos */}
+       {showMiniGames && (
+         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+           <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+             <div className="p-4 border-b flex justify-between items-center">
+               <h2 className="text-2xl font-bold">Mini-Juegos</h2>
+               <Button
+                 variant="outline"
+                 onClick={() => setShowMiniGames(false)}
+               >
+                 ✕
+               </Button>
+             </div>
+             <div className="p-4">
+               <MiniGames
+                 onGameComplete={handleGameComplete}
+                 onGameFail={handleGameFail}
+                 coins={coins}
+               />
+             </div>
+           </div>
+         </div>
+       )}
+     </div>
+   )
+ } 

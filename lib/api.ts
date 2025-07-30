@@ -897,3 +897,321 @@ export const itemAPI = {
     }
   },
 }
+
+// API Service para conectar con el backend de juegos
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+
+// Tipos de datos que coinciden con el backend
+export interface Game {
+  _id: string;
+  codigo: string;
+  nombre: string;
+  descripcion: string;
+  tipo: 'puzzle' | 'arcade' | 'estrategia' | 'adivinanza' | 'memoria' | 'velocidad' | 'coordinacion' | 'logica' | 'matematicas' | 'palabras';
+  dificultad: 'facil' | 'medio' | 'dificil' | 'experto';
+  configuracion: {
+    tiempoLimite: number;
+    intentosMaximos: number;
+    puntuacionMaxima: number;
+    niveles: number;
+    requisitos: {
+      nivelMinimo: number;
+      itemsRequeridos: string[];
+    };
+  };
+  recompensas: {
+    experiencia: number;
+    monedas: number;
+    items: string[];
+    logros: string[];
+  };
+  estado: 'activo' | 'inactivo' | 'mantenimiento';
+  estadisticas?: {
+    sesionesTotales: number;
+    puntuacionPromedio: number;
+    completionRate: string;
+  };
+  topScores?: Array<{
+    usuario: { username: string };
+    puntuacion: number;
+    fechaInicio: string;
+  }>;
+  actividadReciente?: Array<{
+    usuario: { username: string };
+    estado: string;
+    fechaInicio: string;
+  }>;
+}
+
+export interface GameSession {
+  _id: string;
+  usuario: string;
+  juego: string;
+  puntuacion: number;
+  tiempoJugado: number;
+  nivel: number;
+  intentos: number;
+  estado: 'en_progreso' | 'completado' | 'fallido' | 'abandonado';
+  progreso: {
+    porcentaje: number;
+    pasosCompletados: number;
+    pasosTotales: number;
+  };
+  datosJuego: any;
+  recompensasObtenidas?: {
+    experiencia: number;
+    monedas: number;
+    items: string[];
+    logros: string[];
+  };
+  fechaInicio: string;
+  fechaFin?: string;
+}
+
+export interface UserStats {
+  general: {
+    totalSessions: number;
+    completedGames: number;
+    totalScore: number;
+    averageScore: number;
+    totalPlayTime: number;
+    highestScore: number;
+  };
+  porTipoJuego: Array<{
+    _id: string;
+    count: number;
+    avgScore: number;
+    maxScore: number;
+    completed: number;
+  }>;
+  sesionesRecientes: GameSession[];
+  logros: any[];
+  nivel: {
+    actual: number;
+    experiencia: number;
+    siguienteNivel: number;
+    progreso: string;
+  };
+}
+
+export interface Leaderboard {
+  juego: Game;
+  tipo: 'global' | 'semanal' | 'mensual';
+  clasificaciones: Array<{
+    posicion: number;
+    usuario: {
+      id: string;
+      username: string;
+    };
+    puntuacion: number;
+    tiempo: number;
+    partidasJugadas: number;
+  }>;
+}
+
+// Clase para manejar la API
+class GameAPI {
+  private getAuthHeaders(): HeadersInit {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('gameToken') : null;
+    return {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+    };
+  }
+
+  // Métodos de autenticación
+  async login(username: string, password: string): Promise<{ success: boolean; token?: string; user?: any; message?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.data?.token) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('gameToken', data.data.token);
+          localStorage.setItem('gameUser', JSON.stringify(data.data.user));
+        }
+        return { success: true, token: data.data.token, user: data.data.user };
+      }
+      
+      return { success: false, message: data.message || 'Error en login' };
+    } catch (error) {
+      console.error('Error en login:', error);
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  async register(username: string, email: string, password: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+      
+      const data = await response.json();
+      return { success: data.success, message: data.message };
+    } catch (error) {
+      console.error('Error en registro:', error);
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  // Métodos de juegos
+  async getGames(filters?: {
+    tipo?: string;
+    dificultad?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<{ success: boolean; data?: Game[]; pagination?: any; message?: string }> {
+    try {
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined) params.append(key, value.toString());
+        });
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/games?${params}`, {
+        headers: this.getAuthHeaders(),
+      });
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error al obtener juegos:', error);
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  async getGame(gameId: string): Promise<{ success: boolean; data?: Game; message?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/games/${gameId}`, {
+        headers: this.getAuthHeaders(),
+      });
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error al obtener juego:', error);
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  async startGame(gameId: string): Promise<{ success: boolean; data?: GameSession; gameInfo?: any; message?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/games/start`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ juegoId: gameId }),
+      });
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error al iniciar juego:', error);
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  async updateGameSession(sessionId: string, updateData: {
+    puntuacion?: number;
+    progreso?: Partial<GameSession['progreso']>;
+    nivel?: number;
+    datosJuego?: any;
+  }): Promise<{ success: boolean; data?: GameSession; message?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/games/session/${sessionId}/update`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(updateData),
+      });
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error al actualizar sesión:', error);
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  async finishGameSession(sessionId: string, finalData: {
+    puntuacion: number;
+    tiempoJugado: number;
+    estado: 'completado' | 'fallido' | 'abandonado';
+  }): Promise<{ success: boolean; data?: GameSession; recompensas?: any; message?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/games/session/${sessionId}/finish`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(finalData),
+      });
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error al finalizar sesión:', error);
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  async getUserStats(): Promise<{ success: boolean; data?: UserStats; message?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/games/stats/user`, {
+        headers: this.getAuthHeaders(),
+      });
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error al obtener estadísticas:', error);
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  async getLeaderboard(gameId: string, tipo: 'global' | 'semanal' | 'mensual' = 'global'): Promise<{ success: boolean; data?: Leaderboard; message?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/games/leaderboard/${gameId}?tipo=${tipo}`, {
+        headers: this.getAuthHeaders(),
+      });
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error al obtener leaderboard:', error);
+      return { success: false, message: 'Error de conexión' };
+    }
+  }
+
+  // Utilidades
+  getCurrentUser(): any | null {
+    if (typeof window === 'undefined') return null;
+    const user = localStorage.getItem('gameUser');
+    return user ? JSON.parse(user) : null;
+  }
+
+  isAuthenticated(): boolean {
+    if (typeof window === 'undefined') return false;
+    return !!localStorage.getItem('gameToken');
+  }
+
+  logout(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('gameToken');
+      localStorage.removeItem('gameUser');
+    }
+  }
+}
+
+// Instancia singleton de la API
+export const gameAPI = new GameAPI();
+
+// Hook personalizado para usar la API
+export function useGameAPI() {
+  return gameAPI;
+}
