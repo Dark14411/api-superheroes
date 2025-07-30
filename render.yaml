@@ -11,18 +11,4 @@ services:
         value: 3000
     healthCheckPath: /
     autoDeploy: true
-    plan: free
-    buildFilter:
-      paths:
-        - package.json
-        - package-lock.json
-        - next.config.mjs
-        - tsconfig.json
-        - tailwind.config.ts
-        - postcss.config.mjs
-        - app/**
-        - components/**
-        - lib/**
-        - hooks/**
-        - public/**
-        - styles/** 
+    plan: free 

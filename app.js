@@ -1,5 +1,6 @@
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 // Configuración para Render
 const PORT = process.env.PORT || 3000;
@@ -9,14 +10,37 @@ console.log(`📡 Puerto: ${PORT}`);
 console.log(`🌍 Entorno: ${process.env.NODE_ENV}`);
 console.log(`📁 Directorio: ${__dirname}`);
 
+// Verificar si existe el build de producción
+const nextBuildPath = path.join(__dirname, '.next');
+const buildExists = fs.existsSync(nextBuildPath);
+
+if (!buildExists) {
+  console.log('🔨 Build de producción no encontrado, construyendo...');
+  try {
+    execSync('npm run build', { 
+      stdio: 'inherit',
+      cwd: __dirname,
+      env: {
+        ...process.env,
+        NODE_ENV: 'production'
+      }
+    });
+    console.log('✅ Build completado exitosamente');
+  } catch (error) {
+    console.error('❌ Error durante el build:', error);
+    process.exit(1);
+  }
+} else {
+  console.log('✅ Build de producción encontrado');
+}
+
 // Verificar que Next.js esté instalado
 try {
   require.resolve('next');
   console.log('✅ Next.js encontrado');
 } catch (error) {
   console.error('❌ Next.js no encontrado, instalando...');
-  const { execSync } = require('child_process');
-  execSync('npm install', { stdio: 'inherit' });
+  execSync('npm install', { stdio: 'inherit', cwd: __dirname });
 }
 
 // Ejecutar Next.js
