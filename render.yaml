@@ -3,7 +3,7 @@ services:
     name: gaming-hub-ultimate
     env: node
     buildCommand: npm install && npm run build
-    startCommand: node start.js
+    startCommand: node app.js
     envVars:
       - key: NODE_ENV
         value: production
