@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "NODE_OPTIONS='--max-old-space-size=384' next build",
-    "build:render": "NODE_OPTIONS='--max-old-space-size=384' NEXT_TELEMETRY_DISABLED=1 next build",
+    "build": "next build",
+    "build:render": "next build",
     "start": "next start -p %PORT%",
-    "start:render": "NODE_OPTIONS='--max-old-space-size=384' NEXT_TELEMETRY_DISABLED=1 next start -p %PORT%",
+    "start:render": "next start -p %PORT%",
     "lint": "next lint",
     "export": "next export",
-    "render-start": "NODE_OPTIONS='--max-old-space-size=384' NEXT_TELEMETRY_DISABLED=1 next start -p %PORT%"
+    "render-start": "next start -p %PORT%"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
