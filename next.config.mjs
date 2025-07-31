@@ -1,27 +1,65 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configuración para Render
-  output: 'standalone',
+  // Optimizaciones para Render (plan gratuito)
+  experimental: {
+    optimizeCss: false,
+    optimizePackageImports: false,
+  },
   
-  // Configuración de imágenes
+  // Deshabilitar source maps para reducir memoria
+  productionBrowserSourceMaps: false,
+  
+  // Optimizar imágenes
   images: {
-    domains: ['localhost'],
-    unoptimized: true
+    unoptimized: true, // Deshabilitar optimización de imágenes para ahorrar memoria
+    formats: ['image/webp'],
+    minimumCacheTTL: 60,
+  },
+  
+  // Configuración de compilación
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  
+  // Optimizar webpack
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      // Optimizaciones para producción
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+          },
+        },
+      };
+    }
+    
+    return config;
   },
   
   // Configuración de PWA
-  experimental: {
-    appDir: true
-  },
-  
-  // Configuración de TypeScript
-  typescript: {
-    ignoreBuildErrors: false
-  },
-  
-  // Configuración de ESLint
-  eslint: {
-    ignoreDuringBuilds: false
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+    ];
   },
   
   // Configuración de trailing slash
@@ -33,16 +71,20 @@ const nextConfig = {
   // Configuración de asset prefix
   assetPrefix: '',
   
-  // Configuración de webpack
-  webpack: (config, { isServer }) => {
-    // Configuración para archivos estáticos
-    config.module.rules.push({
-      test: /\.(png|jpe?g|gif|svg|webp)$/i,
-      type: 'asset/resource'
-    })
-    
-    return config
-  }
-}
+  // Configuración de distDir
+  distDir: '.next',
+  
+  // Configuración de generateEtags
+  generateEtags: false,
+  
+  // Configuración de poweredByHeader
+  poweredByHeader: false,
+  
+  // Configuración de reactStrictMode
+  reactStrictMode: true,
+  
+  // Configuración de swcMinify
+  swcMinify: true,
+};
 
-export default nextConfig
+export default nextConfig;
