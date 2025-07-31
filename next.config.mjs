@@ -1,30 +1,50 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Optimizaciones para Render (plan gratuito)
-  experimental: {
-    optimizeCss: false,
-    optimizePackageImports: false,
-  },
+  // Configuración para Render
+  output: 'standalone',
   
-  // Deshabilitar source maps para reducir memoria
-  productionBrowserSourceMaps: false,
-  
-  // Optimizar imágenes
+  // Configuración de imágenes
   images: {
-    unoptimized: true, // Deshabilitar optimización de imágenes para ahorrar memoria
-    formats: ['image/webp'],
-    minimumCacheTTL: 60,
+    domains: ['localhost'],
+    unoptimized: true
   },
   
-  // Configuración de compilación
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+  // Configuración de PWA
+  experimental: {
+    appDir: true,
+    // Optimizaciones de memoria
+    optimizeCss: true
   },
   
-  // Optimizar webpack
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      // Optimizaciones para producción
+  // Configuración de TypeScript
+  typescript: {
+    ignoreBuildErrors: false
+  },
+  
+  // Configuración de ESLint
+  eslint: {
+    ignoreDuringBuilds: false
+  },
+  
+  // Configuración de trailing slash
+  trailingSlash: false,
+  
+  // Configuración de base path
+  basePath: '',
+  
+  // Configuración de asset prefix
+  assetPrefix: '',
+  
+  // Configuración de webpack
+  webpack: (config, { isServer }) => {
+    // Configuración para archivos estáticos
+    config.module.rules.push({
+      test: /\.(png|jpe?g|gif|svg|webp)$/i,
+      type: 'asset/resource'
+    })
+    
+    // Optimizaciones de memoria para webpack
+    if (!isServer) {
       config.optimization = {
         ...config.optimization,
         splitChunks: {
@@ -37,54 +57,20 @@ const nextConfig = {
             },
           },
         },
-      };
+      }
     }
     
-    return config;
+    return config
   },
   
-  // Configuración de PWA
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-        ],
-      },
-    ];
-  },
+  // Configuración de compresión
+  compress: true,
   
-  // Configuración de trailing slash
-  trailingSlash: false,
-  
-  // Configuración de base path
-  basePath: '',
-  
-  // Configuración de asset prefix
-  assetPrefix: '',
-  
-  // Configuración de distDir
-  distDir: '.next',
-  
-  // Configuración de generateEtags
-  generateEtags: false,
-  
-  // Configuración de poweredByHeader
+  // Configuración de powered by header
   poweredByHeader: false,
   
-  // Configuración de reactStrictMode
-  reactStrictMode: true,
-  
-  // Configuración de swcMinify
-  swcMinify: true,
-};
+  // Configuración de react strict mode
+  reactStrictMode: true
+}
 
-export default nextConfig;
+export default nextConfig
