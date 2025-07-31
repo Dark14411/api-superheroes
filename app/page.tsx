@@ -43,6 +43,9 @@ import MemoryGame from '@/components/games/Memory'
 import PongGame from '@/components/games/Pong'
 import SimonGame from '@/components/games/Simon'
 
+// 🎮 IMPORTAR HOOKS SEGUROS
+import { useLocalStorage } from '@/hooks/use-hydration-safe'
+
 // 🎮 INTERFACES DEL JUEGO
 interface PetStats {
   hunger: number
@@ -101,63 +104,34 @@ export default function EpicPouGame() {
   const [petName, setPetName] = useState('')
   const [showCustomization, setShowCustomization] = useState(false)
   const [currentGame, setCurrentGame] = useState<string | null>(null)
-  const [gameScores, setGameScores] = useState<GameScore[]>([])
   const [showGame, setShowGame] = useState<string | null>(null)
 
-  // 🎮 ESTADO DE LA MASCOTA
-  const [pet, setPet] = useState<Pet>(() => {
-    if (typeof window === 'undefined') {
-      return {
-        name: 'Mi Pou Épico',
-        color: '#FF6B9D',
-        level: 1,
-        experience: 0,
-        experienceToNext: 100,
-        coins: 1000,
-        gems: 50,
-        accessories: ['crown'],
-        background: 'gradient-1',
-        stats: {
-          hunger: 100,
-          happiness: 100,
-          energy: 100,
-          cleanliness: 100,
-          health: 100
-        },
-        mood: 'happy',
-        personality: 'playful',
-        lastPlayed: new Date().toISOString(),
-        achievements: []
-      }
-    }
-    
-    const savedPet = localStorage.getItem('epic-pou-pet')
-    if (savedPet) {
-      return JSON.parse(savedPet)
-    }
-    return {
-      name: 'Mi Pou Épico',
-      color: '#FF6B9D',
-      level: 1,
-      experience: 0,
-      experienceToNext: 100,
-      coins: 1000,
-      gems: 50,
-      accessories: ['crown'],
-      background: 'gradient-1',
-      stats: {
-        hunger: 100,
-        happiness: 100,
-        energy: 100,
-        cleanliness: 100,
-        health: 100
-      },
-      mood: 'happy',
-      personality: 'playful',
-      lastPlayed: new Date().toISOString(),
-      achievements: []
-    }
+  // 🎮 ESTADO DE LA MASCOTA CON LOCALSTORAGE SEGURO
+  const [pet, setPet] = useLocalStorage<Pet>('epic-pou-pet', {
+    name: 'Mi Pou Épico',
+    color: '#FF6B9D',
+    level: 1,
+    experience: 0,
+    experienceToNext: 100,
+    coins: 1000,
+    gems: 50,
+    accessories: ['crown'],
+    background: 'gradient-1',
+    stats: {
+      hunger: 100,
+      happiness: 100,
+      energy: 100,
+      cleanliness: 100,
+      health: 100
+    },
+    mood: 'happy',
+    personality: 'playful',
+    lastPlayed: new Date().toISOString(),
+    achievements: []
   })
+
+  // 🎮 ESTADO DE PUNTUACIONES CON LOCALSTORAGE SEGURO
+  const [gameScores, setGameScores] = useLocalStorage<GameScore[]>('epic-pou-scores', [])
 
   // 🎮 ESTADO DE LOGROS
   const [achievements, setAchievements] = useState<Achievement[]>([
@@ -218,13 +192,7 @@ export default function EpicPouGame() {
     }
   ])
 
-  // 🎮 GUARDAR EN LOCALSTORAGE
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('epic-pou-pet', JSON.stringify(pet))
-      localStorage.setItem('epic-pou-scores', JSON.stringify(gameScores))
-    }
-  }, [pet, gameScores])
+
 
   // 🎮 FUNCIONES DE ACCIÓN
   const handleFeed = async () => {
