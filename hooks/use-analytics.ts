@@ -207,7 +207,7 @@ export const useAnalytics = () => {
       pouInteractions: 0,
       storeVisits: 0,
       customizationChanges: 0,
-      lastSessionStart: new Date().toISOString(),
+      lastSessionStart: new Date(),
       totalSessions: 1
     })
     setActionLog([])

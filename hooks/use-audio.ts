@@ -144,7 +144,7 @@ export const useAudio = () => {
     if (!settings.musicEnabled) return
 
     const audio = audioRefs.current.get(musicId)
-    if (audio && audio.type === 'music') {
+    if (audio) {
       // Detener música actual
       if (currentMusic.current && currentMusic.current !== musicId) {
         const currentAudio = audioRefs.current.get(currentMusic.current)
@@ -167,7 +167,7 @@ export const useAudio = () => {
     if (!settings.soundEnabled) return
 
     const audio = audioRefs.current.get(soundId)
-    if (audio && audio.type === 'sound') {
+    if (audio) {
       audio.currentTime = 0
       audio.play().catch(() => {
         // Silenciar error si el usuario no ha interactuado

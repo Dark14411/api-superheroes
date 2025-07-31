@@ -258,7 +258,7 @@ const petsDB: Pet[] = [
 
     accessories: {},
 
-    mood: "playful",
+    mood: "happy",
     isAdopted: false,
     price: 800,
 

@@ -45,9 +45,10 @@ class ApiService {
   ): Promise<ApiResponse<T>> {
     try {
       const url = `${this.baseURL}${endpoint}`
-      const headers: HeadersInit = {
+      
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...options.headers as Record<string, string>,
       }
 
       // Agregar token si existe
@@ -230,8 +231,8 @@ class ApiService {
       body: JSON.stringify(credentials)
     })
 
-    if (response.success && response.data?.token) {
-      this.setToken(response.data.token)
+    if (response.success && response.data && typeof response.data === 'object' && 'token' in response.data) {
+      this.setToken((response.data as any).token)
     }
 
     return response
@@ -247,8 +248,8 @@ class ApiService {
       body: JSON.stringify(userData)
     })
 
-    if (response.success && response.data?.token) {
-      this.setToken(response.data.token)
+    if (response.success && response.data && typeof response.data === 'object' && 'token' in response.data) {
+      this.setToken((response.data as any).token)
     }
 
     return response

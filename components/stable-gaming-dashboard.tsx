@@ -260,20 +260,20 @@ export default function StableGamingDashboard() {
         const success = Math.random() > 0.3
         
         if (success) {
-          setPlayerProfile(prev => ({
-            ...prev,
+    setPlayerProfile(prev => ({
+      ...prev,
             experience: prev.experience + game.rewards.experience,
             coins: prev.coins + game.rewards.coins,
             gems: prev.gems + game.rewards.gems
           }))
-          
-          setGames(prev => prev.map(g => 
-            g.id === gameId ? { ...g, isCompleted: true } : g
-          ))
-          
+      
+      setGames(prev => prev.map(g => 
+        g.id === gameId ? { ...g, isCompleted: true } : g
+      ))
+      
           toast.success(`¡${game.name} completado! +${game.rewards.experience} XP`)
-        } else {
-          toast.error(`¡Fallaste en ${game.name}! Inténtalo de nuevo`)
+    } else {
+      toast.error(`¡Fallaste en ${game.name}! Inténtalo de nuevo`)
         }
       }
     } catch (error) {
@@ -288,20 +288,20 @@ export default function StableGamingDashboard() {
     try {
       await new Promise(resolve => setTimeout(resolve, 800))
       
-      setPets(prev => prev.map(pet => 
-        pet.id === petId ? { ...pet, isAdopted: true } : pet
-      ))
-      
-      const pet = pets.find(p => p.id === petId)
-      if (pet) {
+    setPets(prev => prev.map(pet => 
+      pet.id === petId ? { ...pet, isAdopted: true } : pet
+    ))
+    
+    const pet = pets.find(p => p.id === petId)
+    if (pet) {
         setPlayerProfile(prev => ({
           ...prev,
           experience: prev.experience + 50,
           coins: prev.coins + 25
         }))
         
-        toast.success(`¡${pet.name} adoptado! +50 XP, +25 monedas`)
-      }
+      toast.success(`¡${pet.name} adoptado! +50 XP, +25 monedas`)
+    }
     } catch (error) {
       toast.error('Error al adoptar mascota')
     } finally {
@@ -313,12 +313,12 @@ export default function StableGamingDashboard() {
     setIsLoading(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    if (playerProfile.coins >= 1000) {
+      setHeroes(prev => prev.map(h => 
+        h.id === heroId ? { ...h, isUnlocked: true } : h
+      ))
       
-      if (playerProfile.coins >= 1000) {
-        setHeroes(prev => prev.map(h => 
-          h.id === heroId ? { ...h, isUnlocked: true } : h
-        ))
-        
         setPlayerProfile(prev => ({
           ...prev,
           coins: prev.coins - 1000,
@@ -327,9 +327,9 @@ export default function StableGamingDashboard() {
         
         const hero = heroes.find(h => h.id === heroId)
         toast.success(`¡${hero?.name} desbloqueado! -1000 monedas, +100 XP`)
-      } else {
-        toast.error('No tienes suficientes monedas (necesitas 1000)')
-      }
+    } else {
+      toast.error('No tienes suficientes monedas (necesitas 1000)')
+    }
     } catch (error) {
       toast.error('Error al desbloquear héroe')
     } finally {
@@ -386,7 +386,7 @@ export default function StableGamingDashboard() {
               <div className="text-2xl font-bold">{playerProfile.level}</div>
               <div className="text-sm opacity-80">Nivel</div>
               <Progress value={(playerProfile.experience / playerProfile.experienceToNext) * 100} className="mt-2" />
-            </div>
+              </div>
             <div className="text-center">
               <div className="text-2xl font-bold">{playerProfile.coins}</div>
               <div className="text-sm opacity-80">Monedas</div>
@@ -394,8 +394,8 @@ export default function StableGamingDashboard() {
             <div className="text-center">
               <div className="text-2xl font-bold">{playerProfile.gems}</div>
               <div className="text-sm opacity-80">Gemas</div>
+              </div>
             </div>
-          </div>
         </CardContent>
       </Card>
 
@@ -452,12 +452,12 @@ export default function StableGamingDashboard() {
 
       {/* 🎮 ACCIONES RÁPIDAS */}
       <Card>
-        <CardHeader>
+          <CardHeader>
           <CardTitle>Acciones Rápidas</CardTitle>
-        </CardHeader>
+          </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button
+            <Button 
               variant="outline"
               onClick={() => setActiveTab('games')}
               className="flex items-center gap-2"
@@ -466,7 +466,7 @@ export default function StableGamingDashboard() {
               Jugar
             </Button>
             
-            <Button
+            <Button 
               variant="outline"
               onClick={() => setActiveTab('pets')}
               className="flex items-center gap-2"
@@ -492,9 +492,9 @@ export default function StableGamingDashboard() {
               <Trophy className="w-4 h-4" />
               Logros
             </Button>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
     </div>
   )
 
@@ -502,12 +502,12 @@ export default function StableGamingDashboard() {
   const GamesPanel = () => (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+            <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Gamepad2 className="w-6 h-6" />
             Juegos Disponibles
           </CardTitle>
-        </CardHeader>
+            </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {games.map((game) => (
@@ -521,11 +521,11 @@ export default function StableGamingDashboard() {
                     <span>Dificultad:</span>
                     <Badge variant={game.difficulty > 7 ? 'destructive' : game.difficulty > 4 ? 'default' : 'secondary'}>
                       {game.difficulty}/10
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex justify-between text-sm">
-                    <span>Recompensas:</span>
+                </Badge>
+              </div>
+              
+                <div className="flex justify-between text-sm">
+                  <span>Recompensas:</span>
                     <div className="flex gap-1">
                       <Badge variant="outline" className="text-xs">
                         +{game.rewards.experience} XP
@@ -533,20 +533,20 @@ export default function StableGamingDashboard() {
                       <Badge variant="outline" className="text-xs">
                         +{game.rewards.coins} 🪙
                       </Badge>
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={() => handleGamePlay(game.id)}
+                </div>
+              </div>
+              
+              <Button 
+                onClick={() => handleGamePlay(game.id)}
                     disabled={!game.isUnlocked || isLoading}
                     className="w-full"
-                  >
+              >
                     {isLoading ? 'Cargando...' : game.isUnlocked ? 'Jugar Ahora' : 'Bloqueado'}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
         </CardContent>
       </Card>
     </div>
@@ -556,12 +556,12 @@ export default function StableGamingDashboard() {
   const PetsPanel = () => (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+            <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Heart className="w-6 h-6" />
             Mascotas Disponibles
           </CardTitle>
-        </CardHeader>
+            </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {pets.map((pet) => (
@@ -575,29 +575,29 @@ export default function StableGamingDashboard() {
                     <div className="text-center">
                       <div className="font-semibold">{pet.health}</div>
                       <div className="text-xs text-gray-500">Salud</div>
-                    </div>
+                </div>
                     <div className="text-center">
                       <div className="font-semibold">{pet.happiness}</div>
                       <div className="text-xs text-gray-500">Felicidad</div>
-                    </div>
+                </div>
                     <div className="text-center">
                       <div className="font-semibold">{pet.energy}</div>
                       <div className="text-xs text-gray-500">Energía</div>
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={() => handlePetAdopt(pet.id)}
+                </div>
+              </div>
+              
+                  <Button 
+                  onClick={() => handlePetAdopt(pet.id)}
                     disabled={pet.isAdopted || isLoading}
                     variant={pet.isAdopted ? 'secondary' : 'default'}
                     className="w-full"
-                  >
+                >
                     {isLoading ? 'Procesando...' : pet.isAdopted ? 'Ya Adoptada' : 'Adoptar'}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
         </CardContent>
       </Card>
     </div>
@@ -607,20 +607,20 @@ export default function StableGamingDashboard() {
   const MultiplayerPanel = () => (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+          <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="w-6 h-6" />
             Salas Multijugador
           </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </CardHeader>
+          <CardContent>
           <div className="text-center py-8">
             <Users className="w-16 h-16 mx-auto text-gray-400 mb-4" />
             <h3 className="text-lg font-semibold mb-2">Multijugador Próximamente</h3>
             <p className="text-gray-600">Las salas multijugador estarán disponibles en la próxima actualización</p>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
     </div>
   )
 
@@ -628,20 +628,20 @@ export default function StableGamingDashboard() {
   const MarketplacePanel = () => (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+          <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShoppingCart className="w-6 h-6" />
             Tienda
           </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </CardHeader>
+          <CardContent>
           <div className="text-center py-8">
             <ShoppingCart className="w-16 h-16 mx-auto text-gray-400 mb-4" />
             <h3 className="text-lg font-semibold mb-2">Tienda Próximamente</h3>
             <p className="text-gray-600">El marketplace estará disponible en la próxima actualización</p>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
     </div>
   )
 
@@ -649,12 +649,12 @@ export default function StableGamingDashboard() {
   const AchievementsPanel = () => (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+            <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Trophy className="w-6 h-6" />
             Logros
           </CardTitle>
-        </CardHeader>
+            </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {achievements.map((achievement) => (
@@ -667,23 +667,23 @@ export default function StableGamingDashboard() {
                   <p className="text-sm text-gray-600">{achievement.description}</p>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Progreso:</span>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Progreso:</span>
                       <span>{achievement.progress}/{achievement.maxProgress}</span>
-                    </div>
-                    <Progress value={(achievement.progress / achievement.maxProgress) * 100} />
-                  </div>
-                  
+                </div>
+                <Progress value={(achievement.progress / achievement.maxProgress) * 100} />
+              </div>
+              
                   {achievement.isCompleted && (
                     <Badge className="w-full justify-center" variant="default">
                       ✅ Completado
                     </Badge>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
         </CardContent>
       </Card>
     </div>
@@ -693,12 +693,12 @@ export default function StableGamingDashboard() {
   const ProfilePanel = () => (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+          <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-6 h-6" />
             Perfil del Jugador
           </CardTitle>
-        </CardHeader>
+          </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
@@ -717,45 +717,45 @@ export default function StableGamingDashboard() {
                     <span>Rango:</span>
                     <span className="font-medium">{playerProfile.rank}</span>
                   </div>
-                </div>
               </div>
-
+            </div>
+            
               <div>
                 <h3 className="font-semibold mb-2">Recursos</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
+            <div className="space-y-2">
+              <div className="flex justify-between">
                     <span>Monedas:</span>
                     <span className="font-medium">{playerProfile.coins}</span>
-                  </div>
-                  <div className="flex justify-between">
+              </div>
+              <div className="flex justify-between">
                     <span>Gemas:</span>
                     <span className="font-medium">{playerProfile.gems}</span>
-                  </div>
-                  <div className="flex justify-between">
+              </div>
+              <div className="flex justify-between">
                     <span>Logros:</span>
                     <span className="font-medium">{playerProfile.achievements}</span>
-                  </div>
-                </div>
+              </div>
+            </div>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Estadísticas</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
+            <div className="space-y-2">
+              <div className="flex justify-between">
                     <span>Juegos Jugados:</span>
                     <span className="font-medium">{playerProfile.statistics.gamesPlayed}</span>
-                  </div>
-                  <div className="flex justify-between">
+              </div>
+              <div className="flex justify-between">
                     <span>Victorias:</span>
                     <span className="font-medium">{playerProfile.statistics.gamesWon}</span>
-                  </div>
-                  <div className="flex justify-between">
+              </div>
+              <div className="flex justify-between">
                     <span>Puntuación Total:</span>
                     <span className="font-medium">{playerProfile.statistics.totalScore}</span>
-                  </div>
-                  <div className="flex justify-between">
+              </div>
+              <div className="flex justify-between">
                     <span>Días Consecutivos:</span>
                     <span className="font-medium">{playerProfile.statistics.consecutiveDays}</span>
                   </div>
@@ -779,10 +779,10 @@ export default function StableGamingDashboard() {
                   </div>
                 </div>
               </div>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
     </div>
   )
 
@@ -798,9 +798,9 @@ export default function StableGamingDashboard() {
                 <h1 className="text-xl font-bold text-white">Gaming Hub Ultimate</h1>
                 <p className="text-sm text-gray-300">Tu universo gaming épico</p>
               </div>
-            </div>
-            
-            <Button
+          </div>
+          
+              <Button
               variant="ghost"
               size="icon"
               className="md:hidden text-white"
@@ -823,7 +823,7 @@ export default function StableGamingDashboard() {
               {navigationItems.map((item) => {
                 const Icon = item.icon
                 return (
-                  <Button
+            <Button
                     key={item.id}
                     variant={activeTab === item.id ? 'default' : 'ghost'}
                     className="w-full justify-start text-white hover:bg-white/10"
@@ -834,16 +834,16 @@ export default function StableGamingDashboard() {
                   >
                     <Icon className="w-5 h-5 mr-3" />
                     {item.label}
-                  </Button>
+            </Button>
                 )
               })}
-            </div>
+              </div>
           </nav>
 
           {/* 🎮 CONTENIDO PRINCIPAL */}
           <main className="flex-1">
-            {renderActiveContent()}
-          </main>
+          {renderActiveContent()}
+        </main>
         </div>
       </div>
     </div>
