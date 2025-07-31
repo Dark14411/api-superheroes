@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   description: 'Tu mascota virtual personalizable con mini-juegos, sistema de logros y mucho más. ¡Juega y cuida de tu Pou!',
   generator: 'Next.js',
   manifest: '/manifest.json',
-  themeColor: '#f59e0b',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -25,6 +23,14 @@ export const metadata: Metadata = {
       { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' }
     ]
   }
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#f59e0b'
 }
 
 export default function RootLayout({

@@ -31,8 +31,17 @@ import {
   Gem,
   Sparkles,
   Palette,
-  Settings
+  Settings,
+  Play,
+  Award,
+  Gift
 } from 'lucide-react'
+
+// 🎮 IMPORTAR MINIJUEGOS
+import SnakeGame from '@/components/games/Snake'
+import MemoryGame from '@/components/games/Memory'
+import PongGame from '@/components/games/Pong'
+import SimonGame from '@/components/games/Simon'
 
 // 🎮 INTERFACES DEL JUEGO
 interface PetStats {
@@ -40,6 +49,7 @@ interface PetStats {
   happiness: number
   energy: number
   cleanliness: number
+  health: number
 }
 
 interface Pet {
@@ -55,6 +65,19 @@ interface Pet {
   stats: PetStats
   mood: 'ecstatic' | 'happy' | 'content' | 'neutral' | 'sad' | 'tired' | 'sick'
   personality: string
+  lastPlayed: string
+  achievements: string[]
+}
+
+interface GameScore {
+  game: string
+  score: number
+  date: string
+  rewards: {
+    coins: number
+    experience: number
+    happiness: number
+  }
 }
 
 interface Achievement {
@@ -69,23 +92,7 @@ interface Achievement {
   rarity: 'common' | 'rare' | 'epic' | 'legendary'
 }
 
-interface ShopItem {
-  id: string
-  name: string
-  description: string
-  price: number
-  type: 'accessory' | 'background' | 'food' | 'toy' | 'outfit'
-  icon: string
-  isOwned: boolean
-  rarity: 'common' | 'rare' | 'epic' | 'legendary'
-  effects?: {
-    happiness?: number
-    energy?: number
-    health?: number
-  }
-}
-
-export default function PouGame() {
+export default function EpicPouGame() {
   // 🎮 ESTADO PRINCIPAL
   const [activeTab, setActiveTab] = useState('home')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -93,53 +100,62 @@ export default function PouGame() {
   const [showNameModal, setShowNameModal] = useState(false)
   const [petName, setPetName] = useState('')
   const [showCustomization, setShowCustomization] = useState(false)
+  const [currentGame, setCurrentGame] = useState<string | null>(null)
+  const [gameScores, setGameScores] = useState<GameScore[]>([])
+  const [showGame, setShowGame] = useState<string | null>(null)
 
   // 🎮 ESTADO DE LA MASCOTA
   const [pet, setPet] = useState<Pet>(() => {
     if (typeof window === 'undefined') {
       return {
-        name: 'Mi Pou',
+        name: 'Mi Pou Épico',
         color: '#FF6B9D',
         level: 1,
         experience: 0,
         experienceToNext: 100,
-        coins: 500,
-        gems: 25,
+        coins: 1000,
+        gems: 50,
         accessories: ['crown'],
         background: 'gradient-1',
         stats: {
           hunger: 100,
           happiness: 100,
           energy: 100,
-          cleanliness: 100
+          cleanliness: 100,
+          health: 100
         },
         mood: 'happy',
-        personality: 'playful'
+        personality: 'playful',
+        lastPlayed: new Date().toISOString(),
+        achievements: []
       }
     }
     
-    const savedPet = localStorage.getItem('pou-pet')
+    const savedPet = localStorage.getItem('epic-pou-pet')
     if (savedPet) {
       return JSON.parse(savedPet)
     }
     return {
-      name: 'Mi Pou',
+      name: 'Mi Pou Épico',
       color: '#FF6B9D',
       level: 1,
       experience: 0,
       experienceToNext: 100,
-      coins: 500,
-      gems: 25,
+      coins: 1000,
+      gems: 50,
       accessories: ['crown'],
       background: 'gradient-1',
       stats: {
         hunger: 100,
         happiness: 100,
         energy: 100,
-        cleanliness: 100
+        cleanliness: 100,
+        health: 100
       },
       mood: 'happy',
-      personality: 'playful'
+      personality: 'playful',
+      lastPlayed: new Date().toISOString(),
+      achievements: []
     }
   })
 
@@ -188,73 +204,27 @@ export default function PouGame() {
       maxProgress: 5,
       reward: 50,
       rarity: 'legendary'
-    }
-  ])
-
-  // 🎮 ESTADO DE LA TIENDA
-  const [shopItems, setShopItems] = useState<ShopItem[]>([
-    {
-      id: '1',
-      name: 'Corona Real',
-      description: 'Una corona elegante para tu mascota',
-      price: 100,
-      type: 'accessory',
-      icon: '👑',
-      isOwned: true,
-      rarity: 'epic',
-      effects: { happiness: 10 }
-    },
-    {
-      id: '2',
-      name: 'Sombrero de Chef',
-      description: 'Un sombrero elegante para tu mascota',
-      price: 75,
-      type: 'accessory',
-      icon: '👨‍🍳',
-      isOwned: false,
-      rarity: 'rare',
-      effects: { happiness: 5 }
-    },
-    {
-      id: '3',
-      name: 'Fondo Espacial',
-      description: 'Un fondo con estrellas y planetas',
-      price: 150,
-      type: 'background',
-      icon: '🌌',
-      isOwned: false,
-      rarity: 'epic'
-    },
-    {
-      id: '4',
-      name: 'Comida Premium',
-      description: 'Alimenta mejor a tu mascota',
-      price: 25,
-      type: 'food',
-      icon: '🍕',
-      isOwned: false,
-      rarity: 'common',
-      effects: { happiness: 15, energy: 10 }
     },
     {
       id: '5',
-      name: 'Traje de Superhéroe',
-      description: 'Un traje épico para tu mascota',
-      price: 200,
-      type: 'outfit',
-      icon: '🦸',
-      isOwned: false,
-      rarity: 'legendary',
-      effects: { happiness: 20, energy: 15 }
+      name: 'Gamer Pro',
+      description: 'Consigue 1000 puntos en cualquier minijuego',
+      icon: '🏆',
+      isCompleted: false,
+      progress: 0,
+      maxProgress: 1000,
+      reward: 100,
+      rarity: 'epic'
     }
   ])
 
   // 🎮 GUARDAR EN LOCALSTORAGE
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('pou-pet', JSON.stringify(pet))
+      localStorage.setItem('epic-pou-pet', JSON.stringify(pet))
+      localStorage.setItem('epic-pou-scores', JSON.stringify(gameScores))
     }
-  }, [pet])
+  }, [pet, gameScores])
 
   // 🎮 FUNCIONES DE ACCIÓN
   const handleFeed = async () => {
@@ -267,7 +237,8 @@ export default function PouGame() {
         stats: {
           ...prev.stats,
           hunger: Math.min(100, prev.stats.hunger + 30),
-          happiness: Math.min(100, prev.stats.happiness + 10)
+          happiness: Math.min(100, prev.stats.happiness + 10),
+          health: Math.min(100, prev.stats.health + 5)
         },
         experience: prev.experience + 5,
         coins: prev.coins + 2,
@@ -292,7 +263,8 @@ export default function PouGame() {
         stats: {
           ...prev.stats,
           cleanliness: 100,
-          happiness: Math.min(100, prev.stats.happiness + 15)
+          happiness: Math.min(100, prev.stats.happiness + 15),
+          health: Math.min(100, prev.stats.health + 10)
         },
         experience: prev.experience + 8,
         coins: prev.coins + 3,
@@ -317,7 +289,8 @@ export default function PouGame() {
         stats: {
           ...prev.stats,
           energy: 100,
-          hunger: Math.max(0, prev.stats.hunger - 10)
+          hunger: Math.max(0, prev.stats.hunger - 10),
+          health: Math.min(100, prev.stats.health + 15)
         },
         experience: prev.experience + 10,
         coins: prev.coins + 5,
@@ -358,43 +331,38 @@ export default function PouGame() {
     }
   }
 
-  const handleBuyItem = async (item: ShopItem) => {
-    if (pet.coins < item.price) {
-      toast.error('No tienes suficientes monedas')
-      return
-    }
+  const handleGameReward = (gameName: string, score: number, rewards: any) => {
+    setPet(prev => ({
+      ...prev,
+      experience: prev.experience + rewards.experience,
+      coins: prev.coins + rewards.coins,
+      stats: {
+        ...prev.stats,
+        happiness: Math.min(100, prev.stats.happiness + rewards.happiness)
+      },
+      lastPlayed: new Date().toISOString()
+    }))
 
-    setIsLoading(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      setPet(prev => ({
-        ...prev,
-        coins: prev.coins - item.price
-      }))
-      
-      setShopItems(prev => prev.map(i => 
-        i.id === item.id ? { ...i, isOwned: true } : i
-      ))
-      
-      if (item.type === 'accessory' || item.type === 'outfit') {
-        setPet(prev => ({
-          ...prev,
-          accessories: [...prev.accessories, item.name]
-        }))
-      } else if (item.type === 'background') {
-        setPet(prev => ({
-          ...prev,
-          background: item.id
-        }))
-      }
-      
-      toast.success(`¡Compraste ${item.name}!`)
-    } catch (error) {
-      toast.error('Error al comprar')
-    } finally {
-      setIsLoading(false)
-    }
+    setGameScores(prev => [...prev, {
+      game: gameName,
+      score,
+      date: new Date().toISOString(),
+      rewards
+    }])
+
+    setShowGame(null)
+    toast.success(`¡${gameName} completado! +${rewards.experience} XP, +${rewards.coins} monedas`)
+  }
+
+  // 🎮 MANEJAR INICIO DE JUEGO
+  const handleStartGame = (gameId: string) => {
+    setShowGame(gameId)
+    toast.info(`Iniciando ${gameId}...`)
+  }
+
+  // 🎮 MANEJAR CIERRE DE JUEGO
+  const handleCloseGame = () => {
+    setShowGame(null)
   }
 
   const handleChangeName = () => {
@@ -414,7 +382,8 @@ export default function PouGame() {
           hunger: Math.max(0, prev.stats.hunger - 0.5),
           happiness: Math.max(0, prev.stats.happiness - 0.3),
           energy: Math.max(0, prev.stats.energy - 0.2),
-          cleanliness: Math.max(0, prev.stats.cleanliness - 0.4)
+          cleanliness: Math.max(0, prev.stats.cleanliness - 0.4),
+          health: Math.max(0, prev.stats.health - 0.1)
         }
         
         // Determinar mood basado en stats
@@ -456,8 +425,8 @@ export default function PouGame() {
   // 🎮 NAVEGACIÓN
   const navigationItems = [
     { id: 'home', label: 'Inicio', icon: Home },
+    { id: 'games', label: 'Minijuegos', icon: Gamepad2 },
     { id: 'customize', label: 'Personalizar', icon: Palette },
-    { id: 'shop', label: 'Tienda', icon: ShoppingCart },
     { id: 'achievements', label: 'Logros', icon: Trophy },
     { id: 'profile', label: 'Perfil', icon: User }
   ]
@@ -466,10 +435,10 @@ export default function PouGame() {
     switch (activeTab) {
       case 'home':
         return <HomePanel />
+      case 'games':
+        return <GamesPanel />
       case 'customize':
         return <CustomizePanel />
-      case 'shop':
-        return <ShopPanel />
       case 'achievements':
         return <AchievementsPanel />
       case 'profile':
@@ -654,6 +623,17 @@ export default function PouGame() {
               </div>
               <Progress value={pet.stats.cleanliness} className="h-3 bg-white/20" />
             </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm font-semibold">
+                <span className="flex items-center gap-2">
+                  <Heart className="w-4 h-4" />
+                  Salud
+                </span>
+                <span>{Math.round(pet.stats.health)}%</span>
+              </div>
+              <Progress value={pet.stats.health} className="h-3 bg-white/20" />
+            </div>
           </div>
 
           {/* 🎮 BOTONES DE ACCIÓN */}
@@ -721,6 +701,49 @@ export default function PouGame() {
     </div>
   )
 
+  // 🎮 PANEL DE MINIJUEGOS
+  const GamesPanel = () => (
+    <div className="space-y-6">
+      <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 shadow-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-2xl font-bold">
+            <Gamepad2 className="w-6 h-6" />
+            Minijuegos Épicos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { id: 'snake', name: 'Snake', icon: '🐍', description: 'Come manzanas y crece', color: 'from-green-500 to-emerald-600' },
+              { id: 'memory', name: 'Memorama', icon: '🧠', description: 'Encuentra las parejas', color: 'from-blue-500 to-cyan-600' },
+              { id: 'pong', name: 'Pong', icon: '🏓', description: 'Juego clásico de ping pong', color: 'from-red-500 to-pink-600' },
+              { id: 'simon', name: 'Simon Dice', icon: '🎯', description: 'Repite la secuencia', color: 'from-purple-500 to-indigo-600' }
+            ].map((game) => (
+              <Card key={game.id} className={`bg-gradient-to-br ${game.color} text-white hover:shadow-xl transition-all transform hover:scale-105 border-0`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <span className="text-3xl">{game.icon}</span>
+                    {game.name}
+                  </CardTitle>
+                  <p className="text-sm opacity-90">{game.description}</p>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    onClick={() => handleStartGame(game.id)}
+                    className="w-full bg-white/20 hover:bg-white/30 text-white font-bold"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Jugar
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+
   // 🎨 PANEL DE PERSONALIZACIÓN
   const CustomizePanel = () => (
     <div className="space-y-6">
@@ -782,55 +805,6 @@ export default function PouGame() {
                 </button>
               ))}
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-
-  // 🛒 PANEL DE TIENDA
-  const ShopPanel = () => (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 shadow-2xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl font-bold">
-            <ShoppingCart className="w-6 h-6" />
-            Tienda Mágica
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {shopItems.map((item) => (
-              <Card key={item.id} className="hover:shadow-xl transition-all transform hover:scale-105 bg-white/10 backdrop-blur-sm border-white/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <span className="text-3xl">{item.icon}</span>
-                    {item.name}
-                    <Badge className={`${getRarityColor(item.rarity)} text-white`}>
-                      {item.rarity}
-                    </Badge>
-                  </CardTitle>
-                  <p className="text-sm opacity-90">{item.description}</p>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span>Precio:</span>
-                    <Badge variant="outline" className="border-white/30 text-white">
-                      {item.price} 🪙
-                    </Badge>
-                  </div>
-
-                  <Button
-                    onClick={() => handleBuyItem(item)}
-                    disabled={item.isOwned || pet.coins < item.price || isLoading}
-                    variant={item.isOwned ? 'secondary' : 'default'}
-                    className="w-full font-bold"
-                  >
-                    {isLoading ? 'Comprando...' : item.isOwned ? 'Ya Comprado' : 'Comprar'}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </CardContent>
       </Card>
@@ -968,6 +942,10 @@ export default function PouGame() {
                     <span>Limpieza:</span>
                     <span className="font-medium">{Math.round(pet.stats.cleanliness)}%</span>
                   </div>
+                  <div className="flex justify-between">
+                    <span>Salud:</span>
+                    <span className="font-medium">{Math.round(pet.stats.health)}%</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -976,6 +954,42 @@ export default function PouGame() {
       </Card>
     </div>
   )
+
+  // 🎮 RENDERIZAR MINIJUEGOS
+  const renderGame = () => {
+    switch (showGame) {
+      case 'snake':
+        return (
+          <SnakeGame
+            onGameEnd={(score, rewards) => handleGameReward('Snake', score, rewards)}
+            onClose={handleCloseGame}
+          />
+        )
+      case 'memory':
+        return (
+          <MemoryGame
+            onGameEnd={(score, rewards) => handleGameReward('Memorama', score, rewards)}
+            onClose={handleCloseGame}
+          />
+        )
+      case 'pong':
+        return (
+          <PongGame
+            onGameEnd={(score, rewards) => handleGameReward('Pong', score, rewards)}
+            onClose={handleCloseGame}
+          />
+        )
+      case 'simon':
+        return (
+          <SimonGame
+            onGameEnd={(score, rewards) => handleGameReward('Simon Dice', score, rewards)}
+            onClose={handleCloseGame}
+          />
+        )
+      default:
+        return null
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-red-900">
@@ -986,7 +1000,7 @@ export default function PouGame() {
             <div className="flex items-center gap-3">
               <div className="text-4xl animate-pulse">🐾</div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Pou Virtual</h1>
+                <h1 className="text-2xl font-bold text-white">Pou Épico</h1>
                 <p className="text-sm text-white/80">Tu mascota digital épica</p>
               </div>
             </div>
@@ -1077,6 +1091,9 @@ export default function PouGame() {
           </Card>
         </div>
       )}
+
+      {/* 🎮 RENDERIZAR MINIJUEGOS */}
+      {renderGame()}
     </div>
   )
 }
