@@ -11,7 +11,6 @@ const nextConfig = {
   
   // Configuración de PWA
   experimental: {
-    appDir: true,
     // Optimizaciones de memoria
     optimizeCss: true
   },
