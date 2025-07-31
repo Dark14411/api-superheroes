@@ -31,6 +31,17 @@ import {
   Gem
 } from 'lucide-react'
 
+// 🎮 IMPORTAR NUEVOS COMPONENTES
+import { useGamingState } from '@/hooks/use-gaming-state'
+import { LoadingSpinner, CardSpinner } from '@/components/ui/loading-spinner'
+import { 
+  GameButton, 
+  AdoptButton, 
+  BuyButton, 
+  UnlockButton,
+  ActionButton 
+} from '@/components/ui/action-button'
+
 // 🎮 INTERFACES SIMPLES
 interface PlayerProfile {
   username: string
@@ -112,374 +123,81 @@ interface Achievement {
 }
 
 export default function StableGamingDashboard() {
-  // 🎮 ESTADOS PRINCIPALES
+  // 🎮 USAR EL HOOK DE ESTADO GLOBAL
+  const {
+    playerProfile,
+    games,
+    pets,
+    heroes,
+    achievements,
+    marketplace,
+    multiplayerRooms,
+    statistics,
+    loading,
+    errors,
+    startGame,
+    adoptPet,
+    unlockHero,
+    buyItem,
+    loadGames,
+    loadPets,
+    loadHeroes,
+    loadAchievements,
+    loadMarketplace,
+    loadMultiplayerRooms,
+    handleSuccess,
+    handleError
+  } = useGamingState()
+
+  // 🎮 ESTADO LOCAL PARA NAVEGACIÓN
   const [activeTab, setActiveTab] = useState('home')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [playerProfile, setPlayerProfile] = useState<PlayerProfile>({
-    username: 'GamerLegend',
-    level: 8,
-    experience: 2400,
-    experienceToNext: 3000,
-    coins: 15500,
-    gems: 125,
-    achievements: 28,
-    totalPlayTime: 156,
-    avatar: '/avatars/1.png',
-    rank: 'Elite Gamer',
-    health: 85,
-    energy: 70,
-    happiness: 90,
-    statistics: {
-      gamesPlayed: 45,
-      gamesWon: 32,
-      totalScore: 125000,
-      averageScore: 2777,
-      consecutiveDays: 12,
-      favoritePet: 'Rex (Perro Cósmico)',
-      favoriteHero: 'Fénix de Fuego'
-    }
-  })
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const [quickStats, setQuickStats] = useState({
-    todayScore: 850,
-    weeklyRank: 3,
-    activeChallenges: 2,
-    friendsOnline: 8
-  })
-
-  const [economy, setEconomy] = useState({
-    dailyIncome: 150,
-    weeklySpending: 75,
-    totalWealth: 25000,
-    currencies: {
-      coins: 15500,
-      premiumCoins: 125,
-      gems: 125
-    }
-  })
-
-  // 🎮 ESTADOS DINÁMICOS
-  const [games, setGames] = useState<Game[]>([
-    {
-      id: '1',
-      name: 'Aventura Espacial',
-      description: 'Explora el cosmos en esta épica aventura',
-      difficulty: 1,
-      rewards: { experience: 100, coins: 50, gems: 2 },
-      isUnlocked: true,
-      isCompleted: false
-    },
-    {
-      id: '2',
-      name: 'Batalla Épica',
-      description: 'Enfréntate a enemigos poderosos',
-      difficulty: 2,
-      rewards: { experience: 150, coins: 75, gems: 3 },
-      isUnlocked: true,
-      isCompleted: false
-    },
-    {
-      id: '3',
-      name: 'Misión Secreta',
-      description: 'Completa objetivos ocultos',
-      difficulty: 3,
-      rewards: { experience: 200, coins: 100, gems: 5 },
-      isUnlocked: false,
-      isCompleted: false
-    }
-  ])
-
-  const [pets, setPets] = useState<Pet[]>([
-    {
-      id: '1',
-      name: 'Rex',
-      type: 'Perro Cósmico',
-      rarity: 'Legendario',
-      health: 100,
-      happiness: 85,
-      energy: 90,
-      level: 5,
-      isAdopted: true,
-      image: '/pet/mascota_perro.png'
-    },
-    {
-      id: '2',
-      name: 'Luna',
-      type: 'Gato Estelar',
-      rarity: 'Épico',
-      health: 95,
-      happiness: 90,
-      energy: 85,
-      level: 3,
-      isAdopted: false,
-      image: '/pet/mascota_gato.png'
-    },
-    {
-      id: '3',
-      name: 'Spark',
-      type: 'Conejo Eléctrico',
-      rarity: 'Raro',
-      health: 80,
-      happiness: 75,
-      energy: 95,
-      level: 2,
-      isAdopted: false,
-      image: '/pet/mascota_conejo.png'
-    }
-  ])
-
-  const [heroes, setHeroes] = useState<Hero[]>([
-    {
-      id: '1',
-      name: 'Fénix de Fuego',
-      power: 95,
-      defense: 80,
-      speed: 90,
-      special: 'Resurrección',
-      level: 8,
-      isUnlocked: true,
-      image: '/heroe/superheroe_fire_phoenix.png'
-    },
-    {
-      id: '2',
-      name: 'Guardián de Hielo',
-      power: 85,
-      defense: 95,
-      speed: 75,
-      special: 'Escudo de Hielo',
-      level: 6,
-      isUnlocked: true,
-      image: '/heroe/superheroe_ice_guardian.png'
-    },
-    {
-      id: '3',
-      name: 'Rayo de Trueno',
-      power: 90,
-      defense: 70,
-      speed: 100,
-      special: 'Velocidad Suprema',
-      level: 4,
-      isUnlocked: false,
-      image: '/heroe/superheroe_thunder_bolt.png'
-    }
-  ])
-
-  const [achievements, setAchievements] = useState<Achievement[]>([
-    {
-      id: '1',
-      name: 'Primer Paso',
-      description: 'Completa tu primer juego',
-      icon: '🎮',
-      isCompleted: false,
-      progress: 0,
-      maxProgress: 1,
-      rewards: { experience: 50, coins: 25, gems: 1 }
-    },
-    {
-      id: '2',
-      name: 'Coleccionista',
-      description: 'Adopta 3 mascotas',
-      icon: '🐾',
-      isCompleted: false,
-      progress: 1,
-      maxProgress: 3,
-      rewards: { experience: 100, coins: 50, gems: 2 }
-    },
-    {
-      id: '3',
-      name: 'Héroe Legendario',
-      description: 'Desbloquea 5 héroes',
-      icon: '🦸',
-      isCompleted: false,
-      progress: 2,
-      maxProgress: 5,
-      rewards: { experience: 200, coins: 100, gems: 5 }
-    }
-  ])
-
-  // 🎯 FUNCIONES DINÁMICAS
-  const addExperience = (amount: number) => {
-    setPlayerProfile(prev => {
-      const newExp = prev.experience + amount
-      const newLevel = Math.floor(newExp / 1000) + 1
-      const expToNext = newLevel * 1000
-      
-      if (newLevel > prev.level) {
-        toast.success(`¡Nivel ${newLevel} alcanzado! +${amount} XP`)
-        return {
-          ...prev,
-          level: newLevel,
-          experience: newExp,
-          experienceToNext: expToNext
-        }
+  // 🎮 FUNCIONES DE ACCIÓN CONECTADAS A APIS
+  const handleGamePlay = async (gameId: string) => {
+    try {
+      const session = await startGame(gameId)
+      if (session) {
+        // Aquí podrías navegar al juego o mostrar un modal
+        handleSuccess(`¡${games.find(g => g.id === gameId)?.name} iniciado!`)
       }
-      
-      return {
-        ...prev,
-        experience: newExp
-      }
-    })
-  }
-
-  const addCoins = (amount: number) => {
-    setPlayerProfile(prev => ({
-      ...prev,
-      coins: prev.coins + amount
-    }))
-    setEconomy(prev => ({
-      ...prev,
-      currencies: {
-        ...prev.currencies,
-        coins: prev.currencies.coins + amount
-      }
-    }))
-  }
-
-  const addGems = (amount: number) => {
-    setPlayerProfile(prev => ({
-      ...prev,
-      gems: prev.gems + amount
-    }))
-    setEconomy(prev => ({
-      ...prev,
-      currencies: {
-        ...prev.currencies,
-        gems: prev.currencies.gems + amount
-      }
-    }))
-  }
-
-  const handleGamePlay = (gameId: string) => {
-    const game = games.find(g => g.id === gameId)
-    if (!game) return
-
-    // Simular juego
-    const success = Math.random() > 0.3 // 70% de éxito
-    
-    if (success) {
-      addExperience(game.rewards.experience)
-      addCoins(game.rewards.coins)
-      addGems(game.rewards.gems)
-      
-      setGames(prev => prev.map(g => 
-        g.id === gameId ? { ...g, isCompleted: true } : g
-      ))
-      
-      toast.success(`¡${game.name} completado! +${game.rewards.experience} XP, +${game.rewards.coins} monedas`)
-    } else {
-      toast.error(`¡Fallaste en ${game.name}! Inténtalo de nuevo`)
+    } catch (error) {
+      handleError('Error al iniciar juego')
     }
   }
 
-  const handlePetAdopt = (petId: string) => {
-    setPets(prev => prev.map(pet => 
-      pet.id === petId ? { ...pet, isAdopted: true } : pet
-    ))
-    
-    const pet = pets.find(p => p.id === petId)
-    if (pet) {
-      addExperience(50)
-      addCoins(25)
-      toast.success(`¡${pet.name} adoptado! +50 XP, +25 monedas`)
+  const handlePetAdopt = async (petId: string) => {
+    try {
+      const success = await adoptPet(petId)
+      if (success) {
+        // El estado se actualiza automáticamente
+      }
+    } catch (error) {
+      handleError('Error al adoptar mascota')
     }
   }
 
-  const handlePetCare = (petId: string, action: 'feed' | 'play' | 'heal') => {
-    setPets(prev => prev.map(pet => {
-      if (pet.id !== petId) return pet
-      
-      let newPet = { ...pet }
-      
-      switch (action) {
-        case 'feed':
-          newPet.health = Math.min(100, pet.health + 20)
-          newPet.happiness = Math.min(100, pet.happiness + 10)
-          addExperience(10)
-          toast.success(`¡${pet.name} alimentado! +10 XP`)
-          break
-        case 'play':
-          newPet.happiness = Math.min(100, pet.happiness + 25)
-          newPet.energy = Math.max(0, pet.energy - 10)
-          addExperience(15)
-          toast.success(`¡Jugaste con ${pet.name}! +15 XP`)
-          break
-        case 'heal':
-          newPet.health = 100
-          addExperience(20)
-          addCoins(10)
-          toast.success(`¡${pet.name} curado! +20 XP, +10 monedas`)
-          break
+  const handleHeroUnlock = async (heroId: string) => {
+    try {
+      const success = await unlockHero(heroId)
+      if (success) {
+        // El estado se actualiza automáticamente
       }
-      
-      return newPet
-    }))
-  }
-
-  const handleHeroUnlock = (heroId: string) => {
-    const hero = heroes.find(h => h.id === heroId)
-    if (!hero || hero.isUnlocked) return
-    
-    if (playerProfile.coins >= 1000) {
-      setHeroes(prev => prev.map(h => 
-        h.id === heroId ? { ...h, isUnlocked: true } : h
-      ))
-      
-      addCoins(-1000)
-      addExperience(100)
-      toast.success(`¡${hero.name} desbloqueado! -1000 monedas, +100 XP`)
-    } else {
-      toast.error('No tienes suficientes monedas (necesitas 1000)')
+    } catch (error) {
+      handleError('Error al desbloquear héroe')
     }
   }
 
-  const handleAchievementCheck = () => {
-    setAchievements(prev => prev.map(achievement => {
-      let newAchievement = { ...achievement }
-      
-      // Verificar logros
-      if (achievement.id === '1' && games.some(g => g.isCompleted)) {
-        newAchievement.progress = 1
-        if (newAchievement.progress >= newAchievement.maxProgress && !newAchievement.isCompleted) {
-          newAchievement.isCompleted = true
-          addExperience(newAchievement.rewards.experience)
-          addCoins(newAchievement.rewards.coins)
-          addGems(newAchievement.rewards.gems)
-          toast.success(`¡Logro desbloqueado: ${achievement.name}!`)
-        }
+  const handleItemBuy = async (itemId: string) => {
+    try {
+      const success = await buyItem(itemId)
+      if (success) {
+        // El estado se actualiza automáticamente
       }
-      
-      if (achievement.id === '2') {
-        const adoptedPets = pets.filter(p => p.isAdopted).length
-        newAchievement.progress = adoptedPets
-        if (newAchievement.progress >= newAchievement.maxProgress && !newAchievement.isCompleted) {
-          newAchievement.isCompleted = true
-          addExperience(newAchievement.rewards.experience)
-          addCoins(newAchievement.rewards.coins)
-          addGems(newAchievement.rewards.gems)
-          toast.success(`¡Logro desbloqueado: ${achievement.name}!`)
-        }
-      }
-      
-      if (achievement.id === '3') {
-        const unlockedHeroes = heroes.filter(h => h.isUnlocked).length
-        newAchievement.progress = unlockedHeroes
-        if (newAchievement.progress >= newAchievement.maxProgress && !newAchievement.isCompleted) {
-          newAchievement.isCompleted = true
-          addExperience(newAchievement.rewards.experience)
-          addCoins(newAchievement.rewards.coins)
-          addGems(newAchievement.rewards.gems)
-          toast.success(`¡Logro desbloqueado: ${achievement.name}!`)
-        }
-      }
-      
-      return newAchievement
-    }))
+    } catch (error) {
+      handleError('Error al comprar item')
+    }
   }
-
-  // 🎮 EFECTO PARA VERIFICAR LOGROS
-  useEffect(() => {
-    handleAchievementCheck()
-  }, [games, pets, heroes])
 
   // 🎮 NAVEGACIÓN SIMPLIFICADA
   const navigationItems = [
@@ -513,591 +231,589 @@ export default function StableGamingDashboard() {
     }
   }
 
-  const DashboardHome = () => (
-    <div className="space-y-8">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 rounded-2xl p-8 rgb-card">
-        <div className="relative z-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="text-center lg:text-left">
-              <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-4 rgb-text">
-                ¡Bienvenido, {playerProfile.username}!
-              </h1>
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-6">
-                <Badge className="rgb-glow" variant="secondary">
-                  <Crown className="w-4 h-4 mr-2" />
-                  {playerProfile.rank}
-                </Badge>
-                <Badge className="rgb-glow" variant="secondary">
-                  <Target className="w-4 h-4 mr-2" />
-                  Nivel {playerProfile.level}
-                </Badge>
-                <Badge className="rgb-glow" variant="secondary">
-                  <Trophy className="w-4 h-4 mr-2" />
-                  {playerProfile.achievements} Logros
-                </Badge>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="text-center rgb-pulse">
-                <div className="text-4xl">🎮</div>
-                <div className="text-sm text-white/80">Jugando</div>
-              </div>
-            </div>
-          </div>
+  // 🎮 PANEL DE INICIO
+  const DashboardHome = () => {
+    if (loading.profile) {
+      return <CardSpinner />
+    }
+
+    if (!playerProfile) {
+      return (
+        <div className="text-center p-8">
+          <p className="text-gray-500">No se pudo cargar el perfil</p>
+          <Button onClick={() => window.location.reload()}>Reintentar</Button>
         </div>
-      </div>
+      )
+    }
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="rgb-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="rgb-pulse">
-                <BarChart3 className="w-8 h-8 text-blue-400" />
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold rgb-text">{playerProfile.experience}</p>
-                <p className="text-sm text-gray-500">Experiencia</p>
-              </div>
-            </div>
-            <Progress value={(playerProfile.experience / playerProfile.experienceToNext) * 100} className="mt-4" />
-          </CardContent>
-        </Card>
-
-        <Card className="rgb-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="rgb-pulse">
-                <Coins className="w-8 h-8 text-yellow-400" />
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold rgb-text">{playerProfile.coins}</p>
-                <p className="text-sm text-gray-500">Monedas</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rgb-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="rgb-pulse">
-                <Gem className="w-8 h-8 text-purple-400" />
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold rgb-text">{playerProfile.gems}</p>
-                <p className="text-sm text-gray-500">Gemas</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rgb-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="rgb-pulse">
-                <Heart className="w-8 h-8 text-red-400" />
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold rgb-text">{playerProfile.health}%</p>
-                <p className="text-sm text-gray-500">Salud</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="rgb-card">
+    return (
+      <div className="space-y-6">
+        {/* 🎯 PERFIL PRINCIPAL */}
+        <Card className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
           <CardHeader>
-            <CardTitle className="rgb-text flex items-center gap-2">
-              <Zap className="w-5 h-5" />
-              Acciones Rápidas
+            <CardTitle className="flex items-center gap-2">
+              <Crown className="w-6 h-6" />
+              Bienvenido, {playerProfile.username}!
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Button 
-              className="w-full rgb-button" 
-              onClick={() => {
-                addExperience(50)
-                addCoins(25)
-                toast.success('¡Actividad completada! +50 XP, +25 monedas')
-              }}
-            >
-              <Target className="w-4 h-4 mr-2" />
-              Actividad Diaria
-            </Button>
-            <Button 
-              className="w-full rgb-button" 
-              onClick={() => {
-                addGems(5)
-                toast.success('¡Recompensa especial! +5 gemas')
-              }}
-            >
-              <Gift className="w-4 h-4 mr-2" />
-              Recompensa Especial
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="rgb-card">
-          <CardHeader>
-            <CardTitle className="rgb-text flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
-              Estadísticas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm">Juegos Jugados:</span>
-              <span className="rgb-text font-semibold">{playerProfile.statistics.gamesPlayed}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm">Victorias:</span>
-              <span className="rgb-text font-semibold">{playerProfile.statistics.gamesWon}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm">Puntuación Total:</span>
-              <span className="rgb-text font-semibold">{playerProfile.statistics.totalScore.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm">Días Consecutivos:</span>
-              <span className="rgb-text font-semibold">{playerProfile.statistics.consecutiveDays}</span>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold">{playerProfile.level}</div>
+                <div className="text-sm opacity-80">Nivel</div>
+                <Progress value={(playerProfile.experience / playerProfile.experienceToNext) * 100} className="mt-2" />
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold">{playerProfile.coins}</div>
+                <div className="text-sm opacity-80">Monedas</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold">{playerProfile.gems}</div>
+                <div className="text-sm opacity-80">Gemas</div>
+              </div>
             </div>
           </CardContent>
         </Card>
-      </div>
-    </div>
-  )
 
-  const GamesPanel = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold rgb-text">🎮 Juegos Disponibles</h2>
-        <Badge className="rgb-glow" variant="secondary">
-          {games.filter(g => g.isUnlocked).length}/{games.length} Desbloqueados
-        </Badge>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {games.map(game => (
-          <Card key={game.id} className="rgb-card group cursor-pointer hover:scale-105 transition-all duration-300">
-            <CardHeader>
-              <CardTitle className="rgb-text">{game.name}</CardTitle>
-              <p className="text-sm text-gray-500">{game.description}</p>
+        {/* 🎮 ESTADÍSTICAS RÁPIDAS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Gamepad2 className="w-4 h-4" />
+                Juegos Jugados
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Badge className="rgb-glow" variant="secondary">
-                  Nivel {game.difficulty}
-                </Badge>
-                {game.isCompleted && (
-                  <Badge className="rgb-glow bg-green-600">Completado</Badge>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Recompensas:</span>
-                </div>
-                <div className="flex gap-2 text-xs">
-                  <span className="rgb-text">+{game.rewards.experience} XP</span>
-                  <span className="rgb-text">+{game.rewards.coins} 💰</span>
-                  <span className="rgb-text">+{game.rewards.gems} 💎</span>
-                </div>
-              </div>
-              
-              <Button 
-                className="w-full rgb-button"
-                disabled={!game.isUnlocked}
-                onClick={() => handleGamePlay(game.id)}
+            <CardContent>
+              <div className="text-2xl font-bold">{playerProfile.statistics?.gamesPlayed || 0}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Trophy className="w-4 h-4" />
+                Victorias
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{playerProfile.statistics?.gamesWon || 0}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                Puntuación Total
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{playerProfile.statistics?.totalScore || 0}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Star className="w-4 h-4" />
+                Logros
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{playerProfile.achievements}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 🎮 ACCIONES RÁPIDAS */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Acciones Rápidas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <ActionButton
+                onClick={() => setActiveTab('games')}
+                variant="outline"
+                icon={<Gamepad2 className="w-4 h-4" />}
               >
-                {game.isCompleted ? 'Jugar de Nuevo' : 'Jugar Ahora'}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  )
-
-  const PetsPanel = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold rgb-text">🐾 Mis Mascotas</h2>
-        <Badge className="rgb-glow" variant="secondary">
-          {pets.filter(p => p.isAdopted).length}/{pets.length} Adoptadas
-        </Badge>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {pets.map(pet => (
-          <Card key={pet.id} className="rgb-card">
-            <CardHeader>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden rgb-pulse">
-                  <img src={pet.image} alt={pet.name} className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <CardTitle className="rgb-text">{pet.name}</CardTitle>
-                  <p className="text-sm text-gray-500">{pet.type}</p>
-                  <Badge className="rgb-glow mt-1" variant="secondary">
-                    {pet.rarity}
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Salud:</span>
-                  <span className="rgb-text">{pet.health}%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Felicidad:</span>
-                  <span className="rgb-text">{pet.happiness}%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Energía:</span>
-                  <span className="rgb-text">{pet.energy}%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Nivel:</span>
-                  <span className="rgb-text">{pet.level}</span>
-                </div>
-              </div>
+                Jugar
+              </ActionButton>
               
-              {pet.isAdopted ? (
-                <div className="grid grid-cols-3 gap-2">
-                  <Button 
-                    size="sm" 
-                    className="rgb-button"
-                    onClick={() => handlePetCare(pet.id, 'feed')}
-                  >
-                    <Plus className="w-3 h-3" />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    className="rgb-button"
-                    onClick={() => handlePetCare(pet.id, 'play')}
-                  >
-                    <Heart className="w-3 h-3" />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    className="rgb-button"
-                    onClick={() => handlePetCare(pet.id, 'heal')}
-                  >
-                    <Shield className="w-3 h-3" />
-                  </Button>
-                </div>
-              ) : (
-                <Button 
-                  className="w-full rgb-button"
-                  onClick={() => handlePetAdopt(pet.id)}
-                >
-                  Adoptar por 100 monedas
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  )
-
-  const MultiplayerPanel = () => (
-    <div className="space-y-6">
-      <h2 className="text-3xl font-bold rgb-text">👥 Multijugador</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="rgb-card">
-          <CardHeader>
-            <CardTitle className="rgb-text">Jugadores Online</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-2 bg-green-900/20 rounded">
-                <span>GamerPro123</span>
-                <Badge className="rgb-glow" variant="secondary">Online</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-blue-900/20 rounded">
-                <span>ElitePlayer</span>
-                <Badge className="rgb-glow" variant="secondary">Jugando</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-purple-900/20 rounded">
-                <span>LegendGamer</span>
-                <Badge className="rgb-glow" variant="secondary">Online</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rgb-card">
-          <CardHeader>
-            <CardTitle className="rgb-text">Salas Activas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-2 bg-yellow-900/20 rounded">
-                <span>Batalla Épica</span>
-                <Badge className="rgb-glow" variant="secondary">2/4</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-red-900/20 rounded">
-                <span>Torneo Legendario</span>
-                <Badge className="rgb-glow" variant="secondary">8/16</Badge>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-green-900/20 rounded">
-                <span>Misión Cooperativa</span>
-                <Badge className="rgb-glow" variant="secondary">3/6</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )
-
-  const MarketplacePanel = () => (
-    <div className="space-y-6">
-      <h2 className="text-3xl font-bold rgb-text">💰 Tienda</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="rgb-card">
-          <CardHeader>
-            <CardTitle className="rgb-text">Poción de Salud</CardTitle>
-            <p className="text-sm text-gray-500">Restaura 50% de salud</p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <span className="rgb-text font-bold">50 monedas</span>
-              <Badge className="rgb-glow" variant="secondary">Consumible</Badge>
-            </div>
-            <Button className="w-full rgb-button">Comprar</Button>
-          </CardContent>
-        </Card>
-
-        <Card className="rgb-card">
-          <CardHeader>
-            <CardTitle className="rgb-text">Espada Legendaria</CardTitle>
-            <p className="text-sm text-gray-500">+25 de poder</p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <span className="rgb-text font-bold">500 monedas</span>
-              <Badge className="rgb-glow" variant="secondary">Equipamiento</Badge>
-            </div>
-            <Button className="w-full rgb-button">Comprar</Button>
-          </CardContent>
-        </Card>
-
-        <Card className="rgb-card">
-          <CardHeader>
-            <CardTitle className="rgb-text">Gema de Poder</CardTitle>
-            <p className="text-sm text-gray-500">Mejora habilidades</p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <span className="rgb-text font-bold">10 gemas</span>
-              <Badge className="rgb-glow" variant="secondary">Especial</Badge>
-            </div>
-            <Button className="w-full rgb-button">Comprar</Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )
-
-  const AchievementsPanel = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold rgb-text">🏆 Logros</h2>
-        <Badge className="rgb-glow" variant="secondary">
-          {achievements.filter(a => a.isCompleted).length}/{achievements.length} Completados
-        </Badge>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {achievements.map(achievement => (
-          <Card key={achievement.id} className="rgb-card">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="text-3xl">{achievement.icon}</div>
-                <div>
-                  <CardTitle className="rgb-text">{achievement.name}</CardTitle>
-                  <p className="text-sm text-gray-500">{achievement.description}</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Progreso:</span>
-                  <span className="rgb-text">{achievement.progress}/{achievement.maxProgress}</span>
-                </div>
-                <Progress value={(achievement.progress / achievement.maxProgress) * 100} />
-              </div>
+              <ActionButton
+                onClick={() => setActiveTab('pets')}
+                variant="outline"
+                icon={<Heart className="w-4 h-4" />}
+              >
+                Mascotas
+              </ActionButton>
               
-              {achievement.isCompleted ? (
-                <Badge className="rgb-glow bg-green-600 w-full justify-center">Completado</Badge>
-              ) : (
-                <div className="space-y-2">
-                  <div className="text-xs text-gray-500">Recompensas:</div>
-                  <div className="flex gap-2 text-xs">
-                    <span className="rgb-text">+{achievement.rewards.experience} XP</span>
-                    <span className="rgb-text">+{achievement.rewards.coins} 💰</span>
-                    <span className="rgb-text">+{achievement.rewards.gems} 💎</span>
+              <ActionButton
+                onClick={() => setActiveTab('marketplace')}
+                variant="outline"
+                icon={<ShoppingCart className="w-4 h-4" />}
+              >
+                Tienda
+              </ActionButton>
+              
+              <ActionButton
+                onClick={() => setActiveTab('achievements')}
+                variant="outline"
+                icon={<Trophy className="w-4 h-4" />}
+              >
+                Logros
+              </ActionButton>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // 🎮 PANEL DE JUEGOS
+  const GamesPanel = () => {
+    if (loading.games) {
+      return <CardSpinner />
+    }
+
+    if (errors.games) {
+      return (
+        <div className="text-center p-8">
+          <p className="text-red-500 mb-4">{errors.games}</p>
+          <Button onClick={() => loadGames()}>Reintentar</Button>
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Gamepad2 className="w-6 h-6" />
+              Juegos Disponibles
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {games.map((game) => (
+                <Card key={game.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">{game.name}</CardTitle>
+                    <p className="text-sm text-gray-600">{game.description}</p>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span>Dificultad:</span>
+                      <Badge variant={game.difficulty > 7 ? 'destructive' : game.difficulty > 4 ? 'default' : 'secondary'}>
+                        {game.difficulty}/10
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex justify-between text-sm">
+                      <span>Recompensas:</span>
+                      <div className="flex gap-1">
+                        <Badge variant="outline" className="text-xs">
+                          +{game.rewards.experience} XP
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          +{game.rewards.coins} 🪙
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <GameButton
+                      gameId={game.id}
+                      onPlay={handleGamePlay}
+                      isUnlocked={game.isUnlocked}
+                      className="w-full"
+                    />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // 🐾 PANEL DE MASCOTAS
+  const PetsPanel = () => {
+    if (loading.pets) {
+      return <CardSpinner />
+    }
+
+    if (errors.pets) {
+      return (
+        <div className="text-center p-8">
+          <p className="text-red-500 mb-4">{errors.pets}</p>
+          <Button onClick={() => loadPets()}>Reintentar</Button>
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="w-6 h-6" />
+              Mascotas Disponibles
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pets.map((pet) => (
+                <Card key={pet.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">{pet.name}</CardTitle>
+                    <p className="text-sm text-gray-600">{pet.type} - {pet.rarity}</p>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div className="text-center">
+                        <div className="font-semibold">{pet.health}</div>
+                        <div className="text-xs text-gray-500">Salud</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold">{pet.happiness}</div>
+                        <div className="text-xs text-gray-500">Felicidad</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold">{pet.energy}</div>
+                        <div className="text-xs text-gray-500">Energía</div>
+                      </div>
+                    </div>
+
+                    <AdoptButton
+                      petId={pet.id}
+                      onAdopt={handlePetAdopt}
+                      isAdopted={pet.isAdopted}
+                      className="w-full"
+                    />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // 👥 PANEL MULTIJUGADOR
+  const MultiplayerPanel = () => {
+    if (loading.multiplayer) {
+      return <CardSpinner />
+    }
+
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-6 h-6" />
+              Salas Multijugador
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {multiplayerRooms.map((room) => (
+                <Card key={room.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">{room.name}</CardTitle>
+                    <p className="text-sm text-gray-600">{room.description}</p>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span>Jugadores:</span>
+                      <Badge>{room.players?.length || 0}/{room.maxPlayers}</Badge>
+                    </div>
+                    
+                    <ActionButton
+                      onClick={() => handleSuccess('Unirse a sala')}
+                      className="w-full"
+                    >
+                      Unirse
+                    </ActionButton>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // 💰 PANEL DE MERCADO
+  const MarketplacePanel = () => {
+    if (loading.marketplace) {
+      return <CardSpinner />
+    }
+
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShoppingCart className="w-6 h-6" />
+              Tienda
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {marketplace.map((item) => (
+                <Card key={item.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">{item.name}</CardTitle>
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span>Precio:</span>
+                      <Badge variant="outline">{item.price} 🪙</Badge>
+                    </div>
+                    
+                    <BuyButton
+                      itemId={item.id}
+                      onBuy={handleItemBuy}
+                      price={item.price}
+                      canAfford={playerProfile?.coins >= item.price}
+                      className="w-full"
+                    />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // 🏆 PANEL DE LOGROS
+  const AchievementsPanel = () => {
+    if (loading.achievements) {
+      return <CardSpinner />
+    }
+
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="w-6 h-6" />
+              Logros
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {achievements.map((achievement) => (
+                <Card key={achievement.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      {achievement.icon}
+                      {achievement.name}
+                    </CardTitle>
+                    <p className="text-sm text-gray-600">{achievement.description}</p>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Progreso:</span>
+                        <span>{achievement.progress}/{achievement.maxProgress}</span>
+                      </div>
+                      <Progress value={(achievement.progress / achievement.maxProgress) * 100} />
+                    </div>
+                    
+                    {achievement.isCompleted && (
+                      <Badge className="w-full justify-center" variant="default">
+                        ✅ Completado
+                      </Badge>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // 👤 PANEL DE PERFIL
+  const ProfilePanel = () => {
+    if (loading.profile) {
+      return <CardSpinner />
+    }
+
+    if (!playerProfile) {
+      return (
+        <div className="text-center p-8">
+          <p className="text-gray-500">No se pudo cargar el perfil</p>
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Star className="w-6 h-6" />
+              Perfil del Jugador
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-2">Información Básica</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Usuario:</span>
+                      <span className="font-medium">{playerProfile.username}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Nivel:</span>
+                      <span className="font-medium">{playerProfile.level}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Rango:</span>
+                      <span className="font-medium">{playerProfile.rank}</span>
+                    </div>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  )
 
-  const ProfilePanel = () => (
-    <div className="space-y-6">
-      <h2 className="text-3xl font-bold rgb-text">👤 Perfil</h2>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="rgb-card">
-          <CardHeader>
-            <CardTitle className="rgb-text">Información Personal</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full overflow-hidden rgb-pulse">
-                <img src={playerProfile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                <div>
+                  <h3 className="font-semibold mb-2">Recursos</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Monedas:</span>
+                      <span className="font-medium">{playerProfile.coins}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Gemas:</span>
+                      <span className="font-medium">{playerProfile.gems}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Logros:</span>
+                      <span className="font-medium">{playerProfile.achievements}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-2">Estadísticas</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Juegos Jugados:</span>
+                      <span className="font-medium">{playerProfile.statistics?.gamesPlayed || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Victorias:</span>
+                      <span className="font-medium">{playerProfile.statistics?.gamesWon || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Puntuación Total:</span>
+                      <span className="font-medium">{playerProfile.statistics?.totalScore || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Días Consecutivos:</span>
+                      <span className="font-medium">{playerProfile.statistics?.consecutiveDays || 0}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">Estado</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Salud:</span>
+                      <span className="font-medium">{playerProfile.health}/100</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Energía:</span>
+                      <span className="font-medium">{playerProfile.energy}/100</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Felicidad:</span>
+                      <span className="font-medium">{playerProfile.happiness}/100</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+      {/* 🎮 HEADER */}
+      <header className="bg-black/20 backdrop-blur-sm border-b border-white/10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-3xl">🎮</div>
               <div>
-                <h3 className="rgb-text font-bold">{playerProfile.username}</h3>
-                <p className="text-sm text-gray-500">{playerProfile.rank}</p>
+                <h1 className="text-xl font-bold text-white">Gaming Hub Ultimate</h1>
+                <p className="text-sm text-gray-300">Tu universo gaming épico</p>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm">Nivel:</span>
-                <span className="rgb-text font-semibold">{playerProfile.level}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Experiencia:</span>
-                <span className="rgb-text font-semibold">{playerProfile.experience}/{playerProfile.experienceToNext}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Tiempo Total:</span>
-                <span className="rgb-text font-semibold">{playerProfile.totalPlayTime}h</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rgb-card">
-          <CardHeader>
-            <CardTitle className="rgb-text">Estadísticas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm">Juegos Jugados:</span>
-                <span className="rgb-text font-semibold">{playerProfile.statistics.gamesPlayed}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Victorias:</span>
-                <span className="rgb-text font-semibold">{playerProfile.statistics.gamesWon}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Puntuación Total:</span>
-                <span className="rgb-text font-semibold">{playerProfile.statistics.totalScore.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Promedio:</span>
-                <span className="rgb-text font-semibold">{playerProfile.statistics.averageScore}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900/95 backdrop-blur-sm border-r border-gray-700 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} rgb-border`}>
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center gap-3 p-6 border-b border-gray-700">
-            <div className="text-2xl rgb-pulse">🎮</div>
-            <span className="text-xl font-bold rgb-text">Gaming Hub</span>
-          </div>
-          
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2">
-            {navigationItems.map((item) => (
-              <Button
-                key={item.id}
-                variant={activeTab === item.id ? 'default' : 'ghost'}
-                className={`w-full justify-start rgb-button ${activeTab === item.id ? 'bg-purple-600' : ''}`}
-                onClick={() => setActiveTab(item.id)}
-              >
-                <item.icon className="w-4 h-4 mr-3" />
-                {item.label}
-              </Button>
-            ))}
-          </nav>
-          
-          {/* Toggle Button */}
-          <div className="p-4 border-t border-gray-700">
             <Button
-              variant="outline"
-              size="sm"
-              className="w-full rgb-button"
-              onClick={() => setSidebarOpen(false)}
+              variant="ghost"
+              size="icon"
+              className="md:hidden text-white"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              <X className="w-4 h-4 mr-2" />
-              Cerrar
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </Button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
-        {/* Header */}
-        <header className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-700 p-4">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rgb-button"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Coins className="w-5 h-5 text-yellow-400" />
-                <span className="rgb-text font-semibold">{playerProfile.coins}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Gem className="w-5 h-5 text-purple-400" />
-                <span className="rgb-text font-semibold">{playerProfile.gems}</span>
-              </div>
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* 🎮 NAVEGACIÓN LATERAL */}
+          <nav className={`
+            lg:w-64 bg-black/20 backdrop-blur-sm rounded-lg p-4 border border-white/10
+            ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}
+          `}>
+            <div className="space-y-2">
+              {navigationItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <Button
+                    key={item.id}
+                    variant={activeTab === item.id ? 'default' : 'ghost'}
+                    className="w-full justify-start text-white hover:bg-white/10"
+                    onClick={() => {
+                      setActiveTab(item.id)
+                      setIsMobileMenuOpen(false)
+                    }}
+                  >
+                    <Icon className="w-5 h-5 mr-3" />
+                    {item.label}
+                  </Button>
+                )
+              })}
             </div>
-          </div>
-        </header>
+          </nav>
 
-        {/* Content */}
-        <main className="p-6">
-          {renderActiveContent()}
-        </main>
+          {/* 🎮 CONTENIDO PRINCIPAL */}
+          <main className="flex-1">
+            {renderActiveContent()}
+          </main>
+        </div>
       </div>
     </div>
   )
